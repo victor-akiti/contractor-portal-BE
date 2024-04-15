@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "amni-contractors",
+    "private_key_id": "0dbe90f20b45e8e81fd58df3fa30cbf1821161ec",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZMPSF/+W9qvmL\naq7in6tNvubtyJSrzRjMNUWTHSQy2sFShKj8I5uBXaoDGht8RS57IE6FTSOJcKaz\nUITKVRwN60C1lgcPT12SHZNPJ9CEa3yfAB0H7Ah1sBRLG4B860tezSV/oiv7txxB\nK9BG7fQHe3weDDE0HhVXNZCwsTfiGK4936l+9f23uD/bYrfJLPMWB1f31gH+bI/B\nnlIdZd8IHz2zLHorjPabuLJPsa8ypdBZegfIyunxID9yI9VeERdZJtKeikmbOWIA\nmoHG02+9c/IBXVEqM6XQDghkAWFvYSP0QTWgx5magDVu0cRoHlgba8KCqzIu/Avq\nDFctX85fAgMBAAECggEAK+fmHqqfBmsoXEM6TGzrw+E6LMqWJ27kOu/v+y/yb+di\nGmzf/myyVIIbSto9wS75GQHsba0s6G1h/bDiz0ZKUBQFNlA4aCNqro2VCHTrhcF2\n5Wuv8riH80afq5lJLbehOm5tTLJ7gry/FPum9JfI87RGYIqlbbxBIyqcb+O7gNSO\nGdTER82x6qZe4wb9V/wbfRbUAEfeQCNEwGJxq7fjrpYjnRxPe/L3PPs9JNjhBfEv\ncDZlwOP3i+kV4P4Y1x5zCW45IB/YTZHxI00g7BkGH48vctfH2k0sc8Aq4OVqg2k+\n5xIt6li6vu7uT6U3lSblkBsNtLOTSu7JYO5cT45f2QKBgQDt0nCLSbUseTRi3vrS\nucN1T65azCqqE2tK8pEWfOjqQGdAuoeSZO0drifYPNHV47UEn9lhdL2uAgM8xWiY\nGO6kLU/irBXo2xmSWIMlddZvN+6VpvB6OjL2gsKB/R6mfv2RoijHjLIvdUdGB/RP\nlfH5uU4VhPj2wz6RWi5vvmaiyQKBgQDpytMGbgZDvFI7RjPZ1YWAG+w82ORxLsA1\n6GjGN7LZi4CQ7BXxWGq+iyUV23StOf2SEUKf/B5OoaAyrlrhCZhRG3LfUpiyYcP+\ngpITiDlValFkPIcztJMPkf7UasON7ff0vuHLbVVhplqtjrLiLAtyqaM16I+nYMNg\nOvKQtD4T5wKBgQDaAUpBpLN7rS+kYpqyiK7v3rcJbJa/iUWVUn5FiwNHmPoNj++u\n9u2Vg4vq4PXJiA7rykxO1eD6ncWx85RJuLEpto/ATddXuWDbkl/F+xsyoKcIcBuJ\nL8h/yKXc2tc58LcoxOl04ziD4JIRVEFUozNJo+A8QcSnD5tPSse+j18uYQKBgQCn\nH1W6Quw3f2dI9+YY0YmdCljVJjYmskS0RG6hQy+WUyKUdi85Vvr3OoBIH5hIPCwH\nPk9iDdecXe0mTXypYTKAyB5VhbWhzkFMrgm97KMPa/DCtoHvdCWr+7EuJyOjUXju\ne4Ts5jsiksg/SMKW6uVEEf+ZiaUnAQSoxXqf9jhqAQKBgEfvkVgVjaJeaXhbFFQK\n5hwnzQN7sNk3BGxjUtqxGvXFacjVtGeftrJhT3C0YpgLaa17Npb/1PCVf6Q1p12G\nAFeY3/Y/4AEw7aT2Cd4LZUCLm1eftBLsC92bPmKMpBIDvXFcrTux6H+TF8JMIFgy\nxsBs2TbAiFVe0W8GpHvwp9Hh\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-6h41u@amni-contractors.iam.gserviceaccount.com",
+    "client_id": "100073985701494536134",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-6h41u%40amni-contractors.iam.gserviceaccount.com"
+}
+  
