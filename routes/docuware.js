@@ -3,7 +3,7 @@ const { createNewInvoice, attachFilesToNewInvoice } = require("../controllers/do
 const { fetchInvoiceDetails, fetchAllSubmittedInvoices, fetchAllInvoiceForms } = require("../controllers/docuware/getInvoiceDetails")
 const multer = require("multer")
 const authenticate = require("../middleWare/authenticateRequests")
-const upload = multer({dest: "/uploads"})
+const upload = multer({dest:  __dirname +  "/uploads"})
 
 const Router = require("express").Router()
 
