@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGO_CONNECT_URL).then(response => {
 app.use(cookieParser());
 
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL,
     allowedHeaders: ["token","Content-Type"],
     credentials: true
 }))
@@ -50,7 +50,7 @@ app.use("/docuware", docuwareRouter)
 
 const smee = new SmeeClient({
     source: 'https://smee.io/bRrz1sAx2t9nAwe',
-    target: 'http://localhost:8080/docuware/createInvoiceRecord',
+    target: process.env.BACKEND_URL + 'docuware/createInvoiceRecord',
     logger: console
 })
 
