@@ -231,6 +231,9 @@ const Schema = new mongoose.Schema({
 
     INVOICE_DATE: {
         
+    },
+    CALL_OFF_NUMBER: {
+
     }
     }, {timestamps: true})
 
