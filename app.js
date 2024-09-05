@@ -48,6 +48,7 @@ app.use("/auth", authRouter)
 app.use("/files", filesRouter)
 app.use("/docuware", docuwareRouter)
 
+
 // const smee = new SmeeClient({
 //     source: 'https://smee.io/bRrz1sAx2t9nAwe',
 //     target: process.env.BACKEND_URL + 'docuware/createInvoiceRecord',
@@ -55,6 +56,7 @@ app.use("/docuware", docuwareRouter)
 // })
 
 // const events = smee.start()
+
 
 
 app.listen(process.env.PORT, () => {
