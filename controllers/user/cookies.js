@@ -33,7 +33,8 @@ const setUserCookies = (res, authToken) => {
 
         if (user) {
             res.cookie("authToken", authToken, {
-                httpOnly: true
+                httpOnly: true,
+                sameSite: "none"
             })
 
             console.log({user});
