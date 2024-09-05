@@ -7,6 +7,8 @@ const authenticate = async (req, res, next) => {
     try {
         try {
             const { authToken } = req.cookies
+            console.log(req.cookies);
+            console.log({authToken});
 
         const user = await authenticateUserToken(authToken)
         console.log({user});
@@ -42,7 +44,7 @@ const authenticate = async (req, res, next) => {
 
 const authenticateUserToken = (authToken) => {
     return new Promise(async (resolve, reject) => {
-        console.log({authToken});
+        
         //The following block of code is constructed this way to make sure that the server doesn't crash if authentication is not successful.
         try {
             admin.auth().verifyIdToken(authToken).then(result => {
