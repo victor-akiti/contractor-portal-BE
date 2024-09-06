@@ -11,6 +11,7 @@ exports.createNewInvoice = async (req, res, next) => {
         //Fetch invoice record
         // console.log(req.body);
         // return sendBasicResponse(res, {completionID: "12345"})
+
         const invoiceRecord = await InvoiceFormModel.findOne({_id: req.body._id})
 
         if (!invoiceRecord) {
@@ -242,7 +243,7 @@ exports.createNewInvoice = async (req, res, next) => {
             {
               method: "POST",
               headers: {
-                Authorization: `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkVBODgzNTEyODE4OTFEQzU5RUVGQ0ZBQjcxMEQ5REY4NDgxNDdFMjQiLCJ4NXQiOiI2b2cxRW9HSkhjV2U3OC1yY1EyZC1FZ1VmaVEiLCJ0eXAiOiJhdCtqd3QifQ.eyJpc3MiOiJodHRwczovL2xvZ2luLWVtZWEuZG9jdXdhcmUuY2xvdWQvY2M2MzQ0YzctZTRiOS00NWQ1LTk0ODItZWUyZDc5NmRlNDY0IiwibmJmIjoxNzI1NDgzNjIyLCJpYXQiOjE3MjU0ODM2MjIsImV4cCI6MTcyNTQ4NzIyMiwiYXVkIjoiZG9jdXdhcmUucGxhdGZvcm0iLCJzY29wZSI6WyJkb2N1d2FyZS5wbGF0Zm9ybSJdLCJhbXIiOlsicGFzc3dvcmQiXSwiY2xpZW50X2lkIjoiZG9jdXdhcmUucGxhdGZvcm0ubmV0LmNsaWVudCIsInN1YiI6ImQ3ZjdiOTY2LTA5M2EtNGUxYi05NzE5LTU1MzI3OWU5MTMyMSIsImF1dGhfdGltZSI6MTcyNTQ4MzYyMiwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6IkdvZHNvbiBBbmlhZ3VkbyIsInVzZXJfZW1haWwiOiJnb2Rzb24uYW5pYWd1ZG9AYW1uaS5jb20iLCJvcmdhbml6YXRpb24iOiJBbW5pIEludGVybmF0aW9uYWwgUGV0cm9sZXVtIERldmVsb3BtZW50IENvLiIsIm9yZ19ndWlkIjoiY2M2MzQ0YzctZTRiOS00NWQ1LTk0ODItZWUyZDc5NmRlNDY0IiwiaG9zdF9pZCI6IlVuZGVmaW5lZCIsInByb2R1Y3RfdHlwZSI6IlBsYXRmb3JtU2VydmljZSJ9.MyoKqmJ16ZNGaSc84VjXwTmaHurnCWt4rjRkNk2f2unskBZVDdSSbrHWYSCcnQQWbGNC3mc0uB5-6sdtSUj9rfyr3HYRvMofxJvZWtaPt-rq6-H7pjJOgwo3G_8U_bOKlvZuPC0PMa_Gw67NMk1PDj9a2rEdNXvlwofaD9sJjcwPEPU0WWiCFBTWASTDm4v86JZNxHJAYTUJs4n5-4aIacMpo34E65_mTg-xn3nlk3-x7aFR37Y4TgOL_YQWdJsH8RABi_UycoLoksjHYu28TjwX_jWtjUxr1vw9srjELePUCCSUE5FbRbCx2CqZH566pnTS7NRbrM1ACoi2pq6qxA`,
+                Authorization: `Bearer ${req.docuwareToken}`,
                 "Content-Type": "application/json",
                 Accept: "*/*",
               },
@@ -369,7 +370,7 @@ exports.attachFilesToNewInvoice = async (req, res, next) => {
 
         axios.post(`https://amni.docuware.cloud/DocuWare/Platform/FileCabinets/ecbd2b98-4d02-46a4-a923-9e9464a487c1/Documents/${documentID}`, formData, {
             headers: {
-                Authorization: `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkVBODgzNTEyODE4OTFEQzU5RUVGQ0ZBQjcxMEQ5REY4NDgxNDdFMjQiLCJ4NXQiOiI2b2cxRW9HSkhjV2U3OC1yY1EyZC1FZ1VmaVEiLCJ0eXAiOiJhdCtqd3QifQ.eyJpc3MiOiJodHRwczovL2xvZ2luLWVtZWEuZG9jdXdhcmUuY2xvdWQvY2M2MzQ0YzctZTRiOS00NWQ1LTk0ODItZWUyZDc5NmRlNDY0IiwibmJmIjoxNzI1NDgzNjIyLCJpYXQiOjE3MjU0ODM2MjIsImV4cCI6MTcyNTQ4NzIyMiwiYXVkIjoiZG9jdXdhcmUucGxhdGZvcm0iLCJzY29wZSI6WyJkb2N1d2FyZS5wbGF0Zm9ybSJdLCJhbXIiOlsicGFzc3dvcmQiXSwiY2xpZW50X2lkIjoiZG9jdXdhcmUucGxhdGZvcm0ubmV0LmNsaWVudCIsInN1YiI6ImQ3ZjdiOTY2LTA5M2EtNGUxYi05NzE5LTU1MzI3OWU5MTMyMSIsImF1dGhfdGltZSI6MTcyNTQ4MzYyMiwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6IkdvZHNvbiBBbmlhZ3VkbyIsInVzZXJfZW1haWwiOiJnb2Rzb24uYW5pYWd1ZG9AYW1uaS5jb20iLCJvcmdhbml6YXRpb24iOiJBbW5pIEludGVybmF0aW9uYWwgUGV0cm9sZXVtIERldmVsb3BtZW50IENvLiIsIm9yZ19ndWlkIjoiY2M2MzQ0YzctZTRiOS00NWQ1LTk0ODItZWUyZDc5NmRlNDY0IiwiaG9zdF9pZCI6IlVuZGVmaW5lZCIsInByb2R1Y3RfdHlwZSI6IlBsYXRmb3JtU2VydmljZSJ9.MyoKqmJ16ZNGaSc84VjXwTmaHurnCWt4rjRkNk2f2unskBZVDdSSbrHWYSCcnQQWbGNC3mc0uB5-6sdtSUj9rfyr3HYRvMofxJvZWtaPt-rq6-H7pjJOgwo3G_8U_bOKlvZuPC0PMa_Gw67NMk1PDj9a2rEdNXvlwofaD9sJjcwPEPU0WWiCFBTWASTDm4v86JZNxHJAYTUJs4n5-4aIacMpo34E65_mTg-xn3nlk3-x7aFR37Y4TgOL_YQWdJsH8RABi_UycoLoksjHYu28TjwX_jWtjUxr1vw9srjELePUCCSUE5FbRbCx2CqZH566pnTS7NRbrM1ACoi2pq6qxA`,
+                Authorization: `Bearer ${req.docuwareToken}`,
                 'Content-Type': `multipart/form-data; boundary=${formData._boundary}`
             }
         }).then((responseFromServer2) => {
