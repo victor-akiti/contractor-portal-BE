@@ -4,7 +4,7 @@ const { fetchInvoiceDetails, fetchAllSubmittedInvoices, fetchAllInvoiceForms } =
 const multer = require("multer")
 const authenticate = require("../middleWare/authenticateRequests")
 const { addDocuwareToken } = require("../middleWare/docuwareToken")
-const upload = multer({dest:  __dirname +  "/uploads"})
+const upload = multer({dest: "/uploads"})
 
 const Router = require("express").Router()
 
