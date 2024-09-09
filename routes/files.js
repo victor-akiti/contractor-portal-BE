@@ -1,7 +1,7 @@
 const { uploadFiles } = require("../controllers/files/upload")
 const authenticate = require("../middleWare/authenticateRequests")
 const multer = require("multer")
-const upload = multer({dest:  __dirname+  "/uploads"})
+const upload = multer({dest: "/uploads"})
 
 const Router = require("express").Router()
 
