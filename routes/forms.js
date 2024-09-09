@@ -1,7 +1,9 @@
+const { deleteForm } = require("../controllers/forms/delete")
 const { getAllForms, getForm } = require("../controllers/forms/get")
 const { createNewForm } = require("../controllers/forms/new")
 const { updateForm } = require("../controllers/forms/update")
 const authenticate = require("../middleWare/authenticateRequests")
+const { checkIfUserHasPermissions } = require("../middleWare/roleFilters")
 
 
 const Router = require("express").Router()
@@ -10,5 +12,6 @@ Router.post("/new", authenticate, createNewForm)
 Router.get("/all", authenticate, getAllForms)
 Router.get("/form/:id", authenticate, getForm)
 Router.put("/form/:id", authenticate, updateForm)
+Router.delete("/form/:id", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), deleteForm)
 
 module.exports = Router
