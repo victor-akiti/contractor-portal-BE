@@ -16,10 +16,7 @@ exports.fetchAllEndUsers = async () => {
 exports.fetchAllUsers = async (req, res, next) => {
    try {
 
-      remapUsers()
-
-      // console.log({users});
-      // migrateData()
+      
    } catch (error) {
       next(error)
    }

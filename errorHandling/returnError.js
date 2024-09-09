@@ -1,5 +1,5 @@
 const returnError = (error, req, res, next) => {
-    console.log({error});
+    console.log({error12: error});
     res.status(error.errorCode).send({status: "Failed", error: {message: error.name}})
 }
 
