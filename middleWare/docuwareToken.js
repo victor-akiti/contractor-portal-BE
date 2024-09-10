@@ -14,27 +14,32 @@ const addDocuwareToken = async (req, res, next) => {
             expiryTime = currentTime + fetchedToken?.data?.expires_in
             docuwareToken = fetchedToken?.data?.access_token
             req.docuwareToken = fetchedToken?.data?.access_token
+            next() 
         }
     } else {
         //Authenticate existing token. If token is stil valid, pass it to controller, else fetch a new token
         let currentTime = Date.now()
         if (expiryTime < currentTime ) {
+            console.log({tokenExpired: "Token has expired"});
             const fetchedToken = await fetchDocuwareToken()
 
-            console.log({docuwareToken});
+            console.log({docuwareToken, fetchedToken});
             if (docuwareToken.status === 200 && fetchedToken?.data?.access_token) {
                 let currentTime = Date.now()
                 
                 expiryTime = currentTime + fetchedToken?.data?.expires_in
                 docuwareToken = fetchedToken?.data?.access_token
                 req.docuwareToken = fetchedToken?.data?.access_token
+                next() 
             }
         } else {
+            console.log({existingToken: docuwareToken});
             req.docuwareToken = docuwareToken
+            next() 
         }
     }
 
-    next() 
+    
 }
 
 const fetchDocuwareToken = () => {

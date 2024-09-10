@@ -317,7 +317,7 @@ exports.attachFilesToNewInvoice = async (req, res, next) => {
 
         console.log({documentID});
 
-        
+
         console.log({docuwareToken: req.docuwareToken});
 
         //Get files
