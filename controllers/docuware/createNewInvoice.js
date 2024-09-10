@@ -376,6 +376,7 @@ exports.attachFilesToNewInvoice = async (req, res, next) => {
         }).then((responseFromServer2) => {
             sendBasicResponse(res, {})
         }).catch((err) => {
+            console.log({err});
             res.status(500).send({status: "Failed", message: "An error occurred while submitting your invoice. Please contact the site administrator."})
         })
 
