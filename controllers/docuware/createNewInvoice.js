@@ -317,6 +317,9 @@ exports.attachFilesToNewInvoice = async (req, res, next) => {
 
         console.log({documentID});
 
+        
+        console.log({docuwareToken: req.docuwareToken});
+
         //Get files
         const files = req.files
         const {Blob} = require("buffer")
