@@ -31,12 +31,16 @@ const Schema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["User", "End User", "CO", "GM", "HOD", "GMD", "Insurance Officer", "Admin"],
+        enum: ["User", "End User", "VRM", "C and P Staff", "CO", "GM", "HOD", "GMD", "Insurance Officer", "Admin"],
+        // [Supervisor, Executive Approver, ]
         default: "User"
     },
     isSuspended: {
         type: Boolean,
         default: false
+    },
+    department: {
+        type: String
     }
 }, {timestamps: true})
 

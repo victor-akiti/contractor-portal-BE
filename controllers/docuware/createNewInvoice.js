@@ -336,29 +336,52 @@ exports.attachFilesToNewInvoice = async (req, res, next) => {
         
 
         // let FormData = require("form-data")
-        let formData = new FormData()
+        
 
         // for (let index = 0; index < files.length; index++) {
         //     const element = files[index];
         //     formData.append("File", element)
         // }
-        const fs = require("fs")
+        
 
         //Read file data and create blob from it. Create buffer from the blob and then append it to the FormData that would be uploaded to docuware.
         
 
         for (let index = 0; index < files.length; index++) {
+            let formData = new FormData()
+            const fs = require("fs")
             const element = files[index];
 
             const fileData = fs.readFileSync(element.path)
-        let blob = new Blob([fileData],{type: element.mimetype})
-        let data = fs.createReadStream(element.path,'utf8')
-   
-        const buf = await blob.arrayBuffer()
+            let blob = new Blob([fileData],{type: element.mimetype})
+            let data = fs.createReadStream(element.path,'utf8')
+            let uploadError = false
+    
+            const buf = await blob.arrayBuffer()
 
 
 
-        formData.append("File[]", blob, element.originalname)
+            formData.append("File[]", blob, element.originalname)
+
+            axios.post(`https://amni.docuware.cloud/DocuWare/Platform/FileCabinets/ecbd2b98-4d02-46a4-a923-9e9464a487c1/Documents/${documentID}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${req.docuwareToken}`,
+                    'Content-Type': `multipart/form-data; boundary=${formData._boundary}`
+                }
+            }).then((responseFromServer2) => {
+                
+                if (index === files.length - 1) {
+                    sendBasicResponse(res, {})
+                }
+            }).catch((err) => {
+                console.log({err});
+                uploadError = true
+                res.status(500).send({status: "Failed", message: "An error occurred while submitting your invoice. Please contact the site administrator."})
+            })
+
+            if (uploadError) {
+                break
+            }
             
         }
 
@@ -371,17 +394,7 @@ exports.attachFilesToNewInvoice = async (req, res, next) => {
 
         //   console.log({upladFileRequest});
 
-        axios.post(`https://amni.docuware.cloud/DocuWare/Platform/FileCabinets/ecbd2b98-4d02-46a4-a923-9e9464a487c1/Documents/${documentID}`, formData, {
-            headers: {
-                Authorization: `Bearer ${req.docuwareToken}`,
-                'Content-Type': `multipart/form-data; boundary=${formData._boundary}`
-            }
-        }).then((responseFromServer2) => {
-            sendBasicResponse(res, {})
-        }).catch((err) => {
-            console.log({err});
-            res.status(500).send({status: "Failed", message: "An error occurred while submitting your invoice. Please contact the site administrator."})
-        })
+        
 
         return
 
