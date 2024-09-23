@@ -141,6 +141,10 @@ const Schema = new mongoose.Schema({
     "vendor": {
         type: mongoose.Types.ObjectId,
         ref: UserModel
+    },
+    approvalHistory: {
+        type: Array,
+        default: []
     }
     
 }, {timestamps: true})

@@ -409,6 +409,168 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
     }
 }
 
+exports.fetchVendorApprovalData = async (req, res, next) => {
+    try {
+        console.log("Fetching form");
+        const {uid} = req.user
+        const {id} = req.params
+
+        const company = await Company.findOne({vendor: id})
+
+        if (!company) {
+            throw new Error403Handler("The requested vendor record does not exist.")
+        }
+
+        console.log({uid, body: req.params});
+        //Get contractor registration form
+
+        const generalRegistrationForm = await FormModel.findOne({"form.settings.isContractorApplicationForm": true}).select("-modificationHistory -formCreator -createdAt -updatedAt")
+
+        const vendorRegistrationForm = await VendorModel.findOne({_id: id}).select("-modificationHistory -formCreator -createdAt -updatedAt")
+
+        let tempRegistrationForm = {...generalRegistrationForm._doc}
+        let tempVendorRegistrationForm = {...vendorRegistrationForm._doc}
+
+
+        //This block copies values from the vendor's saved form to the general registration form. This ensures that the vendors always have access to the most recent version of the registration form
+        for (let index = 0; index < tempRegistrationForm.form.pages.length; index++) {
+            const page = tempRegistrationForm.form.pages[index];
+            const vendorPage = tempVendorRegistrationForm?.form?.pages[index]
+
+            if (vendorPage && (page.pageTitle === vendorPage.pageTitle)) {
+                let vendorSectionIndex = 0
+                for (let index2 = 0; index2 < page.sections.length; index2++) {
+                    const section = page.sections[index2];
+                    const vendorSection = vendorPage?.sections[vendorSectionIndex]
+
+
+
+                    if (index === 0) {
+                        console.log({index2, vendorSectionIndex});
+                        console.log({isDuplicate: vendorSection.isDuplicate});
+                    }
+                    console.log({vendorTitle: vendorSection.title, sectionTitle: section.title});
+                console.log({condition2: vendorSection.isDuplicate});
+
+                    if (vendorSection  && !vendorSection.isDuplicate && (vendorSection.title === section.title)) {
+                        
+                        //I do not like that I had to do a three levels deep nested for-loop but time constraints left this as the quickest workable solution. Bear with me but please refactor this whenever you can.
+                        for (let index3 = 0; index3 < section.fields.length; index3++) {
+                            const field = section.fields[index3];
+                            const vendorField = vendorSection.fields[index3]
+        
+
+                            if (vendorField && vendorField.label === field.label) {
+                                tempRegistrationForm.form.pages[index].sections[index2].fields[index3].value = vendorField.value
+                                tempRegistrationForm.form.pages[index].sections[index2].fields[index3].defaultValue = vendorField.defaultValue
+                            }
+                            
+                        }
+                        vendorSectionIndex++
+                        
+                        
+                    } else if (vendorSection.isDuplicate) {
+                        while (vendorPage?.sections[vendorSectionIndex].isDuplicate) {
+                            vendorSectionIndex++
+                        }
+
+                        for (let index3 = 0; index3 < section.fields.length; index3++) {
+                            const field = section.fields[index3];
+                            const vendorField = vendorPage?.sections[vendorSectionIndex].fields[index3]
+        
+
+                            if (vendorField && vendorField.label === field.label) {
+                                tempRegistrationForm.form.pages[index].sections[index2].fields[index3].value = vendorField.value
+                                tempRegistrationForm.form.pages[index].sections[index2].fields[index3].defaultValue = vendorField.defaultValue
+                            }
+                            
+                        }
+
+                        vendorSectionIndex++
+                    }
+    
+                }
+            } else {
+                continue
+            }
+        }
+
+        console.log({tempFormLength: tempVendorRegistrationForm.form.pages[0].sections.length});
+
+        //This blocks adds all duplicate fields to the registration form.
+        for (let index = 0; index < tempVendorRegistrationForm.form.pages.length; index++) {
+            const page = tempRegistrationForm.form.pages[index];
+            const vendorPage = tempVendorRegistrationForm?.form?.pages[index]
+
+            if (vendorPage && (page.pageTitle === vendorPage.pageTitle)) {
+                let sectionIndex = 0
+
+                while (sectionIndex < vendorPage.sections.length) {
+                    const section = page.sections[sectionIndex];
+                    const vendorSection = vendorPage?.sections[sectionIndex]
+
+                    console.log({section: section?.title, vendorSection: vendorSection?.title});
+
+                    if (vendorSection && section) {
+                        if (vendorSection && (vendorSection.title === section.title)) {
+                            let fieldIndex = 0
+                            while (fieldIndex < vendorSection.fields.length) {
+                                const field = section.fields[fieldIndex];
+                                const vendorField = vendorSection.fields[fieldIndex]
+            
+
+                                if (vendorField.isDuplicate) {
+                                    tempRegistrationForm.form.pages[index].sections[sectionIndex].fields.splice(fieldIndex, 0, vendorField)
+                                }
+    
+                                fieldIndex++
+                            }
+                        } else {
+                            if (vendorSection.isDuplicate) {
+                                tempRegistrationForm.form.pages[index].sections.splice(sectionIndex, 0, vendorSection)
+                            } 
+                        }
+                    } else {
+                        if (vendorSection.isDuplicate) {
+                            tempRegistrationForm.form.pages[index].sections.splice(sectionIndex, 0, vendorSection)
+                        }
+                    }
+
+                    
+
+                    
+                    sectionIndex++
+                }
+
+            } else {
+                continue
+            }
+        }
+
+
+
+        if (generalRegistrationForm && vendorRegistrationForm) {
+            if (generalRegistrationForm.form.settings.enabled) {
+                //Get current user's uploaded files
+                const uploadedFiles = await FileModel.find({userID: uid})
+                sendBasicResponse(res, {approvalData: company, generalRegistrationForm: {...tempRegistrationForm, files: uploadedFiles, vendorID: vendorRegistrationForm._doc._id}, baseRegistrationForm: {...generalRegistrationForm._doc, files: uploadedFiles}})
+            } else {
+                throw new Error403Handler("Registration is currently disabled. Please try again later.")
+            }
+            
+        } else {
+            throw new Error400Handler("There isn't currently a registration form. Please contact the administrator for further assistance.")
+        }
+
+        
+
+        // console.log({registrationForm});
+    }
+    catch (error) {
+        next(error)
+    }
+}
+
 const inviteHasExpired = invite => {
     if (invite.expiry._seconds) {
         const expiryDateTimestamp = invite.expiry._seconds * 1000

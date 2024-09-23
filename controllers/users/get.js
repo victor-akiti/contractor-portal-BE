@@ -1,4 +1,6 @@
 const { admin } = require("../../auth/initializeFirebase");
+const { sendBasicResponse } = require("../../helpers/response");
+const { UserModel } = require("../../models/user");
 const { allUsers } = require("./savedData");
 
 exports.fetchAllEndUsers = async () => {
@@ -16,6 +18,19 @@ exports.fetchAllEndUsers = async () => {
 exports.fetchAllUsers = async (req, res, next) => {
    try {
 
+      
+   } catch (error) {
+      next(error)
+   }
+}
+
+exports.fetchAllStaff = async (req, res, next) => {
+   try {
+
+      const allStaff = await UserModel.find({role: {$nin: "User"}})
+
+      sendBasicResponse(res, allStaff)
+      
       
    } catch (error) {
       next(error)
