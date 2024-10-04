@@ -19,6 +19,7 @@ const authRouter = require("./routes/auth")
 const filesRouter = require("./routes/files")
 const docuwareRouter = require("./routes/docuware")
 const jobCategoriesRouter = require("./routes/jobCategories")
+const approvalRouter = require("./routes/approval")
 
 mongoose.connect(process.env.MONGO_CONNECT_URL).then(response => {
     console.log("Successfully connected to MongoDB Atlas");
@@ -49,6 +50,7 @@ app.use("/auth", authRouter)
 app.use("/files", filesRouter)
 app.use("/docuware", docuwareRouter)
 app.use("/jobCategories", jobCategoriesRouter)
+app.use("/approvals", approvalRouter)
 
 
 // const smee = new SmeeClient({
