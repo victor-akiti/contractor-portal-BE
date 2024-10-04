@@ -95,14 +95,12 @@ const Schema = new mongoose.Schema({
     "returnTime": {
         type: Number
     },
-    "endUsers": {
-        type: Array
-    },
     "enduserApprovalInfo": {
         type: Object
     },
     "jobCategories": {
-        type: Array
+        type: Array,
+        default: []
     },
     "dueDiligence": {
         type: Object
@@ -128,8 +126,12 @@ const Schema = new mongoose.Schema({
     "certificatesExtracted": {
         type: Boolean
     },
-    "enduser": {
+    "endUser": {
         type: Object
+    },
+    "endUsers": {
+        type: Array,
+        default: []
     },
     "hodDiligenceRemarks": {
         type: Object
@@ -142,9 +144,13 @@ const Schema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: UserModel
     },
+    "currentEndUsers": [],
     approvalHistory: {
         type: Array,
         default: []
+    },
+    returnRequest: {
+        type: Object
     }
     
 }, {timestamps: true})

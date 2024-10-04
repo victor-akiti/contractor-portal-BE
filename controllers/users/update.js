@@ -10,7 +10,7 @@ exports.updateUserRole = async (req, res, next) => {
 
         //Check if any user exists that is CO, GM, HOD or GMD and is an active account
         
-        if (["CO", "GM", "HOD", "GMD"].includes(role)) {
+        if (["VRM", "GM", "HOD", "GMD"].includes(role)) {
             const user = await UserModel.findOne({role})
 
             if (user) {

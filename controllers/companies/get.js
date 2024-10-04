@@ -113,6 +113,11 @@ exports.fetchAllApprovalData = async (req, res, next) => {
 
         const invites = await Invite.find({}) 
 
+        const user = await UserModel.findOne({uid: req.user.uid})
+
+        console.log({requestingID: user});
+        
+
         let sortedInvites = []
 
         if (invites.length > 0) {
@@ -138,18 +143,52 @@ exports.fetchAllApprovalData = async (req, res, next) => {
         let l2 = []
         let l3 = []
         let returned = []
+        let inProgress = []
+        let needingAttendion = []
+        let notNeedingAttention = []
 
         allCompanies.filter((item, index) => {
-            if (item?.flags?.status === "suspended") {
+            if (!item?.flags?.status) {
+                inProgress.push(item)
+            }
+            if (item?.flags?.stage === "suspended") {
                 parkedL2.push(item)
-            } else if (item?.flags?.status === "approved") {
+            } else if (item?.flags?.stage === "approved") {
                 l3.push(item)
-            } else if (item?.flags?.status === "returned") {
+            } else if (item?.flags?.stage === "returned") {
                 returned.push(item)
             } else {
                 l2.push(item)
+
+                if (item.currentEndUsers.includes(user._id)) {
+                    needingAttendion.push({...item._doc, needsAttention: true})
+                } else {
+                    notNeedingAttention.push(item)
+                }
+                
             }
         })
+
+        //Sort notNeedingAttention
+        notNeedingAttention = notNeedingAttention.sort((a, b) => {
+            
+
+            if (a?.companyName && b?.companyName) {
+                const titleA = a?.companyName.toUpperCase(); // ignore upper and lowercase
+            const titleB = b?.companyName.toUpperCase(); // ignore upper and lowercase
+            if (titleA < titleB) {
+              return -1;
+            }
+            if (titleA > titleB) {
+              return 1;
+            }
+            } else {
+                return 0
+            }
+          
+            // names must be equal
+            return 0;
+        });
 
         console.log( {
             parkedL2: parkedL2.length,
@@ -160,10 +199,10 @@ exports.fetchAllApprovalData = async (req, res, next) => {
 
         sendBasicResponse(res, {
             invites: sortedInvites,
-            pendingL2: l2,
+            pendingL2: [...needingAttendion, ...notNeedingAttention],
             l3,
             completedL2: parkedL2,
-            inProgress: [],
+            inProgress,
             returned
         })
     } catch (error) {
@@ -445,13 +484,6 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
 
 
 
-                    if (index === 0) {
-                        console.log({index2, vendorSectionIndex});
-                        console.log({isDuplicate: vendorSection.isDuplicate});
-                    }
-                    console.log({vendorTitle: vendorSection.title, sectionTitle: section.title});
-                console.log({condition2: vendorSection.isDuplicate});
-
                     if (vendorSection  && !vendorSection.isDuplicate && (vendorSection.title === section.title)) {
                         
                         //I do not like that I had to do a three levels deep nested for-loop but time constraints left this as the quickest workable solution. Bear with me but please refactor this whenever you can.
@@ -466,6 +498,11 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                             }
                             
                         }
+
+                        tempRegistrationForm.form.pages[index].sections[index2]["approved"] = vendorSection.approved
+                        tempRegistrationForm.form.pages[index].sections[index2]["remarks"] = vendorSection.remarks ? vendorSection.remarks : []
+                        tempRegistrationForm.form.pages[index].sections[index2]["comments"] = vendorSection.comments ? vendorSection.comments : []
+
                         vendorSectionIndex++
                         
                         
