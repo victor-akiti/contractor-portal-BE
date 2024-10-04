@@ -2,6 +2,7 @@ const { updateCertificate } = require("../controllers/companies/certificates")
 const { createVendor, updateVendor } = require("../controllers/companies/createAndUpdateVendor")
 const { fetchAllCompanies, findCompanyByString, fetchCompanyCurrentRegistrationStatus, fetchAllApprovalData, fetchDashboardData, fetchRegistrationForm, fetchVendorRegistrationForm, fetchVendorApprovalData } = require("../controllers/companies/get")
 const { submitApplication } = require("../controllers/companies/submitApplication")
+const { updateCompanyJobCategoriesList } = require("../controllers/companies/update")
 const authenticate = require("../middleWare/authenticateRequests")
 const { checkIfUserHasPermissions } = require("../middleWare/roleFilters")
 
@@ -20,5 +21,6 @@ Router.post("/vendor/create", authenticate, checkIfUserHasPermissions(["User"]),
 Router.put("/vendor/update", authenticate, checkIfUserHasPermissions(["User"]), updateVendor)
 Router.put("/vendor/submit", authenticate, checkIfUserHasPermissions(["User"]), submitApplication)
 Router.put("/certificates/:certificateID", authenticate, checkIfUserHasPermissions(["User"]), updateCertificate)
+Router.put("/job-categories/:id", authenticate, updateCompanyJobCategoriesList)
 
 module.exports = Router
