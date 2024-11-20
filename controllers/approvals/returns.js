@@ -1,22 +1,23 @@
+const { default: mongoose } = require("mongoose");
 const { returnApplicationToVendorEmailTemplate, returnApplicationToVendorEmailApproverTemplate } = require("../../helpers/emailTemplates");
-const { createNewEvent } = require("../../helpers/eventHelpers");
+const { createNewEvent, eventDefinitions, approvalStages } = require("../../helpers/eventHelpers");
 const { sendMail } = require("../../helpers/mailer");
 const { sendBasicResponse } = require("../../helpers/response");
 const { Company } = require("../../models/company");
 const { VendorModel } = require("../../models/vendor");
+const { Error500Handler, Error400Handler } = require("../../errorHandling/errorHandlers");
 
 exports.returnApplicationToVendor = async (req, res, next) => {
     try {
-        console.log(req.body);
-        console.log(req.params);
-        console.log(req.user);
-        
-        
         const { vendorID } = req.params
 
         const remarks = getRemarksTextAndHTML(req.body.newRemarks)
 
         console.log({remarks});
+
+        const stringRegex = /a-zA-Z/
+
+        stringRegex.test(12345)
         
 
 
@@ -36,7 +37,15 @@ exports.returnApplicationToVendor = async (req, res, next) => {
         //Update vendor flags stage to returned
         const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
             flags: {
-                ...vendor.flags, stage: "returned"}
+                ...vendor.flags, stage: "returned"},
+            $push: {
+                approvalHistory: {
+                    date: Date.now(),
+                    action: `Returned to application to vendor`,
+                    approverName: req.user.name,
+                    approverEmail: req.user.email
+                }
+            }
         }, {
             new: true
         })
@@ -92,9 +101,100 @@ exports.returnApplicationToVendor = async (req, res, next) => {
         }
 
         //Create event
-        createNewEvent(req.user._id, req.user.name, req.user.role, vendorID, vendor.companyName, 1, req.body.newRemarks)
+        createNewEvent(req.user._id, req.user.name, req.user.role, vendor._id, vendor.companyName, eventDefinitions.returns[approvalStages[vendor.flags.level]].application, req.body.newRemarks, "returned")
 
         console.log({savedVendorForm});
+        
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.retrieveApplication = async (req, res, next) => {
+    try {
+        const { vendorID } = req.params
+
+        const {reason} = req.body   
+
+        if (!vendorID) {
+            throw new Error400Handler("Vendor ID is required")
+        }
+
+        //Get user
+        const { user } = req.user
+
+        console.log(req.user);
+        
+
+        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+
+        if (!company) {
+            throw new Error400Handler("Company does not exist")
+        }
+
+        //Change status to pending if current status is returned
+        if (company.flags.status === "returned") {
+            const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
+                flags: {
+                    ...company.flags,  status: "pending"
+                },
+                $push: {
+                    approvalHistory: {
+                        date: Date.now(),
+                        action: `Retrieved by ${req.user.name}`,
+                        extraData: {reason},
+                        approverName: req.user.name,
+                        approverEmail: req.user.email
+                    }
+                }
+            })
+
+            if (updatedApplication) {
+                sendBasicResponse(res, {})
+
+                createNewEvent(req.user._id, req.user.name, req.user.role, company._id, company.companyName, eventDefinitions.retrieve, {}, "retrieved")
+            } else {
+                throw new Error500Handler("Could not update the application. Please try again later or contact the site administrator.")
+            }
+        } else {
+            throw new Error400Handler("The application has not been returned to the vendor yet")
+        }
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.returnApplicationToPreviousStage = async (req, res, next) => {
+    try {
+        const { vendorID } = req.params
+
+        if (!vendorID) {
+            throw new Error400Handler("Vendor ID is required")
+        }
+
+        // Check if vendor exists
+        const company = await Company.findOne({vendor: vendorID}).populate("vendorAppAdminProfile")
+
+        if (!company) {
+            throw new Error400Handler("Vendor does not exist")
+        }
+        
+        //save pages
+        const savedVendorForm = await VendorModel.findOneAndUpdate({_id: vendorID}, {"form.pages": req.body.pages}, {
+            new: true
+        })
+
+        //Update vendor flags stage to returned
+        const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
+            "flags.level": vendor.flags.level - 1
+    }, {
+            new: true
+        })
+
+        sendBasicResponse(res, {})
+
+        createNewEvent(req.user._id, req.user.name, req.user.role, company._id, company.companyName, eventDefinitions.stageReturn , {}, "returned to previous stage")
         
         
     } catch (error) {

@@ -136,7 +136,7 @@ exports.fetchAllApprovalData = async (req, res, next) => {
             });
         }
 
-        const allCompanies = await Company.find({})
+        const allCompanies = await Company.find({}).populate("vendorAppAdminProfile")
 
 
         let parkedL2 = []
@@ -146,21 +146,29 @@ exports.fetchAllApprovalData = async (req, res, next) => {
         let inProgress = []
         let needingAttendion = []
         let notNeedingAttention = []
+        let parkRequested = []
 
         allCompanies.filter((item, index) => {
             if (!item?.flags?.status) {
                 inProgress.push(item)
             }
-            if (item?.flags?.stage === "suspended") {
+            
+            if (item?.flags?.status === "suspended" || item?.flags?.status === "parked") {
                 parkedL2.push(item)
-            } else if (item?.flags?.stage === "approved") {
+            } else if (item?.flags?.status === "recommended for hold") {
+                parkRequested.push(item)
+            } else if (item?.flags?.status === "incomplete") {
+                inProgress.push(item)
+            } else if (item?.flags?.status === "approved" && item?.flags?.approved) {
                 l3.push(item)
-            } else if (item?.flags?.stage === "returned") {
+            } else if (item?.flags?.status === "returned") {
                 returned.push(item)
+            } else if (item?.flags?.status === "recommended for hold" || item?.flags?.status === "park requested" || item?.flags?.stage === "recommended for hold") {
+                parkRequested.push(item)
             } else {
                 l2.push(item)
 
-                if (item.currentEndUsers.includes(user._id)) {
+                if (item.currentEndUsers && item.currentEndUsers.includes(user._id)) {
                     needingAttendion.push({...item._doc, needsAttention: true})
                 } else {
                     notNeedingAttention.push(item)
@@ -170,25 +178,13 @@ exports.fetchAllApprovalData = async (req, res, next) => {
         })
 
         //Sort notNeedingAttention
-        notNeedingAttention = notNeedingAttention.sort((a, b) => {
-            
+        notNeedingAttention = sortListAlphabetically(notNeedingAttention)
 
-            if (a?.companyName && b?.companyName) {
-                const titleA = a?.companyName.toUpperCase(); // ignore upper and lowercase
-            const titleB = b?.companyName.toUpperCase(); // ignore upper and lowercase
-            if (titleA < titleB) {
-              return -1;
-            }
-            if (titleA > titleB) {
-              return 1;
-            }
-            } else {
-                return 0
-            }
-          
-            // names must be equal
-            return 0;
-        });
+        l3 = sortListAlphabetically(l3)
+
+        returned = sortListAlphabetically(returned)
+
+        
 
         console.log( {
             parkedL2: parkedL2.length,
@@ -203,11 +199,35 @@ exports.fetchAllApprovalData = async (req, res, next) => {
             l3,
             completedL2: parkedL2,
             inProgress,
-            returned
+            returned,
+            parkRequested,
+            all: allCompanies
         })
     } catch (error) {
         next(error)
     }
+}
+
+const sortListAlphabetically = list => {
+    return list.sort((a, b) => {
+            
+
+        if (a?.companyName && b?.companyName) {
+            const titleA = a?.companyName.toUpperCase(); // ignore upper and lowercase
+        const titleB = b?.companyName.toUpperCase(); // ignore upper and lowercase
+        if (titleA < titleB) {
+          return -1;
+        }
+        if (titleA > titleB) {
+          return 1;
+        }
+        } else {
+            return 0
+        }
+      
+        // names must be equal
+        return 0;
+    });
 }
 
 exports.fetchDashboardData = async (req, res, next) => {

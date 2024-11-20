@@ -1,8 +1,11 @@
+const { default: mongoose } = require("mongoose");
 const { Error400Handler } = require("../../errorHandling/errorHandlers");
 const { createNotification } = require("../../helpers/createNotification");
 const { sendBasicResponse } = require("../../helpers/response");
 const { CertificateModel } = require("../../models/certificates");
 const { VendorModel } = require("../../models/vendor");
+const { Company } = require("../../models/company");
+const { createNewEvent } = require("../../helpers/eventHelpers");
 
 exports.updateCertificate = async (req, res, next) => {
     try {
@@ -10,8 +13,11 @@ exports.updateCertificate = async (req, res, next) => {
         console.log(req.params);
         const {newCertificate, updateCode} = req.body
 
+        console.log({newCertificate, updateCode});
+        
+
         if (!newCertificate || !updateCode) {
-            throw new Error400Handler("There was an error with updateing your certificate. Please contact the site admin")
+            throw new Error400Handler("There was an error with updating your certificate. Please contact the site admin")
         }
 
         //Check if certificate to update exists
@@ -19,6 +25,8 @@ exports.updateCertificate = async (req, res, next) => {
             updateCode,
             trackingStatus: "tracked"
         })
+
+        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(certificateToUpdate.vendor)})
 
         if (certificateToUpdate) {
             //Create new certificate record
@@ -80,6 +88,10 @@ exports.updateCertificate = async (req, res, next) => {
                     if (updatedVendorForm) {
                         createNotification(vendorForm._id, "Updated Certificate")
                         sendBasicResponse(res, {})
+
+                        const userRecord = await UserModel.findOne({uid: req.user.uid})
+
+                        createNewEvent(userRecord._id, userRecord.name, userRecord.role, company._id, company.companyName, `${userRecord.name} updated a certificate for ${company.companyName}`, {}, "updated certificate")
                     }
 
                     console.log({updatedVendorForm});

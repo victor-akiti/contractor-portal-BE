@@ -215,7 +215,7 @@ const applicationNeedingAttentionTemplate = ({action}) => {
     }
 }
 
-const endUserNotificationTemplate = ({name, companyName, vendorID, issuesHTML, issuesText}) => {
+const endUserNotificationTemplate = (name, companyName) => {
     return {
         html :`
 
@@ -224,7 +224,7 @@ const endUserNotificationTemplate = ({name, companyName, vendorID, issuesHTML, i
 
        As part of the contractor registration process,
        you have been identified as a possible end-user for
-       ${name} which wishes to register as a contractor with Amni.
+       ${companyName} which wishes to register as a contractor with Amni.
 
 
 
@@ -246,7 +246,7 @@ const endUserNotificationTemplate = ({name, companyName, vendorID, issuesHTML, i
        Select the type of services you would consider this Contractor could provide to Amni. (Please only select services for which you would be the “end-user”)
        </li>
        <li>
-       Indicate if a site visit is required by an Amni Team to verify the capacity of ${name}.
+       Indicate if a site visit is required by an Amni Team to verify the capacity of ${companyName}.
        </li>
        </ol>
        </p>
@@ -256,7 +256,7 @@ const endUserNotificationTemplate = ({name, companyName, vendorID, issuesHTML, i
        </p>
 
 
-       <p><a href="${this.loginLink}">PORTAL LOG-IN LINK</a></p>
+       <p><a href="${process.env.FRONTEND_URL}/staff">PORTAL LOG-IN LINK</a></p>
 
        Yours sincerely,<br>
        <i>Contracts & Procurement Team,</i><br>
@@ -267,15 +267,40 @@ const endUserNotificationTemplate = ({name, companyName, vendorID, issuesHTML, i
        `,
         text: `
 
-       Dear Sir,
-       The end user ${name} has recommended ${companyName} for
-       Level 2 registration only.
-       Please log on to the Contractor Registration Portal to confirm this action.
+       Dear Amni Team Member, 
+       
+
+       As part of the contractor registration process,
+       you have been identified as a possible end-user for
+       ${companyName} which wishes to register as a contractor with Amni.
+
+
+
+       
+
+
+
+    
+       Then please select 1 of 2 options:
+       
+       Option 1 : Progress Registration
+       
+       If you think that Amni should investigate this contractor further and carry out Due Diligence Checks then please:
+       
+       Confirm that you have reviewed the uploaded information and found that the contractor appears to be a suitable contractor for your Department.
+       
+       Select the type of services you would consider this Contractor could provide to Amni. (Please only select services for which you would be the “end-user”)
+       
+       Indicate if a site visit is required by an Amni Team to verify the capacity of ${companyName}.
+       Option 2 : Complete Registration at this point.
+       
+       If, after reviewing the information uploaded on the portal, you think that this contractor is NOT a suitable contractor for your Department, please select this option and the contractor’s registration will be complete at this point. (A Contractor’s registration can always be progressed further at a later time).
 
 
        Yours sincerely,
        Contracts & Procurement Team,
        Amni
+       
 
 
        `

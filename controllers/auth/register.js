@@ -5,6 +5,7 @@ const { sendBasicResponse } = require("../../helpers/response");
 const { Invite } = require("../../models/invite");
 const moment = require("moment");
 const { UserModel } = require("../../models/user");
+const { createNewEvent } = require("../../helpers/eventHelpers");
 
 exports.validateRegistrationHash = async (req, res, next) => {
     try {
@@ -72,7 +73,7 @@ exports.registerNewAccount = async (req, res, next) => {
         }
 
         //Create new user account on Firebase
-        admin.auth().createUser({email: inviteWithHash.email, password: password, phoneNumber: parsedPhoneNumber.formatInternational(), displayName: `${inviteWithHash.fname} ${inviteWithHash.lname}`, emailVerified: true}).then(async result => {
+        admin.auth().createUser({email: inviteWithHash.email, password: password,  displayName: `${inviteWithHash.fname} ${inviteWithHash.lname}`, emailVerified: true}).then(async result => {
             console.log({result: result.providerData});
 
             //Create new user record
@@ -102,6 +103,8 @@ exports.registerNewAccount = async (req, res, next) => {
                 //Send operation to a repeat queue
                 sendBasicResponse(res, {})
             }
+
+            createNewEvent(newUser._id, newUser.name, newUser.role, null, inviteWithHash.companyName, "Created an account", {})
 
             
 

@@ -1,6 +1,9 @@
 const { admin } = require("../auth/initializeFirebase");
-const { Error401Handler, Error403Handler } = require("../errorHandling/errorHandlers");
+const { Error401Handler, Error403Handler, Error400Handler } = require("../errorHandling/errorHandlers");
+const { Company } = require("../models/company");
 const { UserModel } = require("../models/user");
+const { VendorModel } = require("../models/vendor");
+const mongoose = require("mongoose")
 
 
 const authenticate = async (req, res, next) => {
@@ -68,5 +71,7 @@ const authenticateUserToken = (authToken) => {
         }
     })
 }
+
+
 
 module.exports = authenticate

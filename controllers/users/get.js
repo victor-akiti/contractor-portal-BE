@@ -29,6 +29,18 @@ exports.fetchAllStaff = async (req, res, next) => {
 
       const allStaff = await UserModel.find({role: {$nin: "User"}})
 
+      //Sort all staff alphabetically
+
+      allStaff.sort((a, b) => {
+         if (a.name < b.name) {
+            return -1
+         }
+         if (a.firstName > b.firstName) {
+            return 1
+         }
+         return 0
+      })
+
       sendBasicResponse(res, allStaff)
       
       

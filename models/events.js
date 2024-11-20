@@ -1,11 +1,12 @@
 const mongoose = require("mongoose")
 const { VendorModel } = require("./vendor")
 const { UserModel } = require("./user")
+const { Company } = require("./company")
 
 const Schema = new mongoose.Schema({
     vendorID: {
         type: mongoose.Types.ObjectId,
-        ref: VendorModel
+        ref: Company
     },
     vendorName: {
 
@@ -31,6 +32,13 @@ const Schema = new mongoose.Schema({
     },
     extraData: {
         
+    },
+    eventDescription: {
+        type: String,
+        required: true
+    },
+    type: {
+        enum: ["updated certificate", "archived invite", "invite sent", "resent invite", "renewed invite", "registered", "login", "processed", "approved", "revert", "approved hold request", "assigned role", "return", "submitted", "updated certificate", "requested hold", "placed on hold", "other", "returned to previous stage"]
     }
 }, {timestamps: true})
 
