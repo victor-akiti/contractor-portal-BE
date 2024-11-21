@@ -49,6 +49,52 @@ exports.fetchAllStaff = async (req, res, next) => {
    }
 }
 
+exports.fetchAllCnPStaff = async (req, res, next) => {
+   try {
+
+      const cnpStaff = await UserModel.find({role: {$in: ["VRM", "C and P Staff", "CO", "GM", "Supervisor",  "HOD", "C&P Admin"]}})
+
+      //Sort all staff alphabetically
+      const user = req.user
+      
+      const userRecord = await UserModel.findOne({uid: user.uid})
+      
+
+      cnpStaff.sort((a, b) => {
+         if (a.name < b.name) {
+            return -1
+         }
+         if (a.firstName > b.firstName) {
+            return 1
+         }
+         return 0
+      })
+
+      let sortedList = []
+
+      for (let index = 0; index < cnpStaff.length; index++) {
+         const item = cnpStaff[index];
+
+
+         console.log(userRecord._id, item._id);
+         
+         if (!item.substitute) {
+            if ((userRecord.role === "HOD" && item.role === "Supervisor" ) || (userRecord.role === "HOD" && item.role === "VRM") || (userRecord.role === "Supervisor" && item.role === "VRM") || (String(userRecord._id) === String(item._id)) ) {
+               
+            } else {
+               sortedList.push(item)
+            }
+         }
+      }
+
+
+
+      sendBasicResponse(res, sortedList)
+   } catch (error) {
+      next(error)
+   }
+}  
+
 const migrateJSONDataTOMongoDB = async () => {
 
 }
