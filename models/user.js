@@ -41,6 +41,17 @@ const Schema = new mongoose.Schema({
     },
     department: {
         type: String
+    },
+    substituting: {
+        type: mongoose.Types.ObjectId,
+        ref: "User"
+    },
+    outOfOffice: {
+        type: Object
+    },
+    tempRole: {
+        type: String,
+        enum: ["User", "End User", "VRM", "C and P Staff", "CO", "GM", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin"]
     }
 }, {timestamps: true})
 

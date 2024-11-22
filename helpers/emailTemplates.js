@@ -180,6 +180,40 @@ const recommendForHoldEmailTemplate = ({name, companyName, vendorID, issuesHTML,
     }
 }
 
+const setAsSubstituteTemplate = ({staffName, substituteName}) => {
+    return {
+        html :`
+
+       <p>Dear ${substituteName}, </p>
+       <p>
+       ${staffName} is out of office and has set you as their substitute while they are away. All their tasks will be routed to you for action till they return.
+       </p>
+
+       <p>Please log on to the Contractor Registration Portal to see what pending tasks you have to perform.</p>
+
+       Yours sincerely,<br>
+       <i>Contracts & Procurement Team,</i><br>
+       Amni
+       </p>
+
+
+       `,
+        text: `
+
+       Dear ${substituteName},
+       ${staffName} is out of office and has set you as their substitute while they are away. All their tasks will be routed to you for action till they return.
+
+       Please log on to the Contractor Registration Portal to see what pending tasks you have to perform.
+
+       Yours sincerely,
+       Contracts & Procurement Team,
+       Amni
+
+
+       `
+    }
+}
+
 
 const applicationNeedingAttentionTemplate = ({action}) => {
     return {
@@ -368,5 +402,6 @@ module.exports = {
     recommendForHoldEmailTemplate,
     applicationNeedingAttentionTemplate,
     endUserNotificationTemplate,
-    endUserApprovedNotificationTemplate
+    endUserApprovedNotificationTemplate,
+    setAsSubstituteTemplate
 }
