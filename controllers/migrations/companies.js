@@ -1,3 +1,4 @@
+const { Company } = require("../../models/company");
 const { CompanyOld } = require("../../models/companyOld");
 
 exports.migrateCompanies = async (req, res, next) => {
@@ -7,7 +8,7 @@ exports.migrateCompanies = async (req, res, next) => {
 
         console.log({allCompaniesLength : allCompanies.length});
 
-        CompanyOld.insertMany(allCompanies).then((result) => {
+        Company.insertMany(allCompanies).then((result) => {
             console.log({result});
         }).catch((error) => {
             console.log({error});

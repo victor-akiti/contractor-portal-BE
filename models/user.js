@@ -23,7 +23,7 @@ const Schema = new mongoose.Schema({
     isAdmin: {
         type: Boolean
     },
-    iseCnP: {
+    isCnP: {
         type: Boolean
     },
     admin: {

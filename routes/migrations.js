@@ -8,9 +8,9 @@ const authenticate = require("../middleWare/authenticateRequests")
 
 const Router = require("express").Router()
 
-// Router.get("/registrationRequests", authenticate, migrateRegistrationRequests)
-// Router.get("/newRequests", authenticate, migrateNewRequests)
-// Router.get("/companies", authenticate, migrateCompanies)
-// Router.get("/users", migrateUsers)
+Router.get("/registrationRequests", authenticate, migrateRegistrationRequests)
+Router.get("/newRequests", authenticate, migrateNewRequests)
+Router.get("/companies", authenticate, migrateCompanies)
+Router.get("/users", migrateUsers)
 
 module.exports = Router

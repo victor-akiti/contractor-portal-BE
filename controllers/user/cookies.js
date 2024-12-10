@@ -45,10 +45,14 @@ const setUserCookies = (res, authToken) => {
         } else {
             //Create user record in mongoDB
 
+            console.log({theUserrecord: result});
+            
+
             const newUser = new UserModel({
                 uid: result.uid,
                 email: result.email,
                 role: "End User",
+                name: result.name,
                 providerId: result.firebase.sign_in_provider,
             })
 
