@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
 const { VendorModel } = require("./vendor")
 const { UserModel } = require("./user")
+const { Company } = require("./company")
 
 const Schema = new mongoose.Schema({
     url: {
@@ -32,6 +33,10 @@ const Schema = new mongoose.Schema({
     trackingStatus: {
         type: String,
         default: "tracked"
+    },
+    company: {
+        type: mongoose.Types.ObjectId,
+        ref: Company
     }
 }, {timestamps: true})
 
