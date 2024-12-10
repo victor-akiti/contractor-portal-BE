@@ -23,7 +23,10 @@ exports.deleteForm = async (req, res, next) => {
         const deletedForm = await FormModel.findOneAndDelete({_id: id})
 
         if (deletedForm) {
-            sendBasicResponse(res, {})
+            //Get all forms and return response
+
+            const allForms = await FormModel.find()
+            sendBasicResponse(res, allForms)
         } else {
             throw new Error500Handler("An error occured and the form couldn't be deleted. Please try again later.")
         }

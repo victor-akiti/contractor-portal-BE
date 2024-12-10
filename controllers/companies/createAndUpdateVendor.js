@@ -65,7 +65,12 @@ exports.createVendor = async (req, res, next) => {
             }
         })
 
+        
+
         let savedCompany = await newCompanyRecord.save()
+
+        //Update new vendor record with new company id
+        const updatedVendor = await VendorModel.findOneAndUpdate({_id: savedVendor._id}, {company: savedCompany._id})
 
         console.log({savedVendor, savedCompany});
         if (savedVendor && savedCompany) {
@@ -100,6 +105,9 @@ exports.updateVendor = async (req, res, next) => {
             action: "Updated form"
         }}})
 
+        //Find company record for this vendor
+        const company = await Company.findOne({vendor: formDetails.vendorID})
+
         if (updatedVendor) {
             //Update certificates
             //This is another inelegant, inefficient solution that should be refactored if I don't do it
@@ -125,7 +133,9 @@ exports.updateVendor = async (req, res, next) => {
                         user: userProfile._id,
                         issueDate: element.issueDate,
                         expiryDate: element.expiryDate,
-                        updateCode: element.updateCode
+                        updateCode: element.updateCode,
+                        company: company._id
+                        
                     })
 
                     

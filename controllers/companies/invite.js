@@ -7,6 +7,8 @@ const { sendBasicResponse } = require("../../helpers/response");
 const { ArchivedInvite } = require("../../models/inviteArchive");
 const { default: mongoose } = require("mongoose");
 const { importRandomStringGen } = require("../../helpers/randomTextGen");
+const { createNewEvent } = require("../../helpers/eventHelpers");
+const { UserModel } = require("../../models/user");
 
 exports.createNewInvite = async (req, res, next) => {
     try {
@@ -75,6 +77,11 @@ exports.createNewInvite = async (req, res, next) => {
         hash
       })
 
+      const userRecord = await UserModel.findOne({uid: req.user.uid})
+
+      console.log({userRecord});
+      
+
       const savedNewInvite = await newInvite.save()
 
       if (savedNewInvite) {
@@ -97,6 +104,7 @@ exports.createNewInvite = async (req, res, next) => {
 
         if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
             sendBasicResponse(res, {})
+            createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, savedNewInvite.companyName, `New invite sent to ${savedNewInvite.companyName}`, {}, "invite sent")
         }
 
 
@@ -250,6 +258,10 @@ exports.resendInvite = async (req, res, next) => {
 
       if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
           sendBasicResponse(res, {})
+
+          const userRecord = await UserModel.findOne({uid: req.user.uid})
+
+          createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, savedUpdatedInviteObject.companyName, `Invite resent to ${savedUpdatedInviteObject.companyName}`, {}, "resent invite")
       }
 
 
@@ -306,6 +318,10 @@ exports.renewInvite = async (req, res, next) => {
 
     if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
         sendBasicResponse(res, {})
+
+        const userRecord = await UserModel.findOne({uid: req.user.uid})
+
+        createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, savedUpdatedInviteObject.companyName, `Invite for ${savedUpdatedInviteObject.companyName} renewed`, {}, "renewed invite")
     }
 
     //Add event notification
@@ -357,7 +373,11 @@ exports.sendInviteReminder = async (req, res, next) => {
         date: date.getTime() 
       })
 
-      const updateInviteHistory = await Invite.findOneAndUpdate({_id: id}, {lastReminderSent, inviteHistory})
+      const updatedInviteHistory = await Invite.findOneAndUpdate({_id: id}, {lastReminderSent, inviteHistory})
+
+      const userRecord = await UserModel.findOne({uid: req.user.uid})
+
+        createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, updatedInviteHistory.companyName, `Invite for ${updatedInviteHistory.companyName} renewed`, {}, "renewed invite")
   }
 
 
@@ -389,6 +409,10 @@ exports.archiveInvite = async (req, res, next) => {
 
       if (deletedInvite) {
         sendBasicResponse(res, {})
+
+        const userRecord = await UserModel.findOne({uid: req.user.uid})
+
+        createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, savedArchivedInvite.companyName, `Invite for ${savedArchivedInvite.companyName} archived`, {}, "archived invite")
       }
     }
 

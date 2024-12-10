@@ -1,6 +1,7 @@
 const { updateCertificate } = require("../controllers/companies/certificates")
 const { createVendor, updateVendor } = require("../controllers/companies/createAndUpdateVendor")
 const { fetchAllCompanies, findCompanyByString, fetchCompanyCurrentRegistrationStatus, fetchAllApprovalData, fetchDashboardData, fetchRegistrationForm, fetchVendorRegistrationForm, fetchVendorApprovalData } = require("../controllers/companies/get")
+const { getAllSettings, updatePortalAdministratorProfile, requestNewPortalAdministrator } = require("../controllers/companies/settings")
 const { submitApplication } = require("../controllers/companies/submitApplication")
 const { updateCompanyJobCategoriesList } = require("../controllers/companies/update")
 const authenticate = require("../middleWare/authenticateRequests")
@@ -22,5 +23,10 @@ Router.put("/vendor/update", authenticate, checkIfUserHasPermissions(["User"]), 
 Router.put("/vendor/submit", authenticate, checkIfUserHasPermissions(["User"]), submitApplication)
 Router.put("/certificates/:certificateID", authenticate, checkIfUserHasPermissions(["User"]), updateCertificate)
 Router.put("/job-categories/:id", authenticate, updateCompanyJobCategoriesList)
+
+//Company settings and portal admin routes
+Router.get("/settings/:vendorID", authenticate, checkIfUserHasPermissions(["User", "Admin"]), getAllSettings)
+Router.put("/portal-admin/update/:vendorID", authenticate, checkIfUserHasPermissions(["User", "Admin"]), updatePortalAdministratorProfile)
+Router.post("/portal-admin/replace/:vendorID", authenticate, checkIfUserHasPermissions(["User", "Admin"]), requestNewPortalAdministrator)
 
 module.exports = Router
