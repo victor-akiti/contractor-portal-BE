@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const { UserModel } = require("./user")
+const { Company } = require("./company")
 
 const Schema = new mongoose.Schema({
     form: {
@@ -26,6 +27,10 @@ const Schema = new mongoose.Schema({
     associatedCompany: {
         type: mongoose.Types.ObjectId,
         ref: "Vendor"
+    },
+    company: {
+        type: mongoose.Types.ObjectId,
+        ref: Company
     }
 }, {timestamps: true})
 

@@ -34,6 +34,7 @@ exports.updateCertificate = async (req, res, next) => {
                 url: newCertificate.url,
                 label: newCertificate.label,
                 name: newCertificate.name,
+                company: company._id,
                 vendor: certificateToUpdate.vendor,
                 user: certificateToUpdate.user,
                 expiryDate: newCertificate.expiryDate,

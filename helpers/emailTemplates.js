@@ -341,6 +341,43 @@ const endUserNotificationTemplate = (name, companyName) => {
     }
 }
 
+const newPortalAdminRequestTemplate = ({companyName, hash}) => {
+    return {
+        html :`
+
+    <p>You have been nominated by ${companyName} to be their new Amni portal administrator.</p>
+    <p> Please note that use of the Portal is subject to the terms and conditions which are shown on the sign up page and in the Portal.</p>
+    <p> Your sign-up link is <a href="${process.env.FRONTEND_URL}/portalAdmin/new/${hash}" >${process.env.FRONTEND_URL}/portalAdmin/new/${hash}</a>.<p>
+    <p> Please follow the link to create an account that would be set up as the new Amni contractors portal administrator for the company.<p>
+    <p> This link will expire 7 days from the day this email was sent.</p>
+
+    <p>If you do not wish to proceed, please ignore this e-mail.</p>
+
+    <p>
+    Sincerely,<br>
+    <i>Contracts & Procurement team,</i><br>
+    Amni International Petroleum Development Company Ltd
+    </p>
+
+
+    `,
+        text: `
+
+    You have been nominated by ${companyName} to be their new Amni portal administrator.
+    Please note that use of the Portal is subject to the terms and conditions which are shown on the sign up page and in the Portal.
+    Your sign-up link is ${process.env.FRONTEND_URL}/portalAdmin/new/${hash}
+    Please follow the link to create an account that would be set up as the new portal administrator for the company.
+    This link will expire 7 days from the day this email was sent.
+
+    If you do not wish to poceed, please ignore this e-mail.
+
+
+    Contracts & Procurement Team,
+    Amni International Petroleum Development Company Ltd
+    `
+    }
+}
+
 
 const endUserApprovedNotificationTemplate = ({name, companyName, vendorID, issuesHTML, issuesText}) => {
     return {
@@ -403,5 +440,6 @@ module.exports = {
     applicationNeedingAttentionTemplate,
     endUserNotificationTemplate,
     endUserApprovedNotificationTemplate,
-    setAsSubstituteTemplate
+    setAsSubstituteTemplate,
+    newPortalAdminRequestTemplate
 }
