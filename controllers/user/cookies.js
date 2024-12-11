@@ -45,30 +45,43 @@ const setUserCookies = (res, authToken) => {
         } else {
             //Create user record in mongoDB
 
-            const newUser = new UserModel({
-                uid: result.uid,
-                email: result.email,
-                role: "End User",
-                providerId: result.firebase.sign_in_provider,
-            })
+            console.log({theUserrecord: result});
 
-            const savedNewUser = await newUser.save()
+            const emailSignature = String(result.email).split("@")[1]
 
-            if (savedNewUser) {
-                res.cookie("authToken", authToken, {
-                    httpOnly: true,
-                    sameSite: "none", 
-                    secure: true
+            if (emailSignature === "amni.com") {
+                const newUser = new UserModel({
+                    uid: result.uid,
+                    email: result.email,
+                    role: "End User",
+                    name: result.name,
+                    providerId: result.firebase.sign_in_provider,
                 })
+    
+                const savedNewUser = await newUser.save()
+    
+                if (savedNewUser) {
+                    res.cookie("authToken", authToken, {
+                        httpOnly: true,
+                        sameSite: "none", 
+                        secure: true
+                    })
+                    
+                    console.log({savedNewUser});
+                    
                 
-                console.log({savedNewUser});
                 
-            
-            
-                res.status(200).send({status: "OK", data: {user: savedNewUser}})
+                    res.status(200).send({status: "OK", data: {user: savedNewUser}})
+                } else {
+                    throw new Error500Handler("An error occured and your user account couldn't be created. Please try again later.")
+                }
             } else {
-                throw new Error500Handler("An error occured and your user account couldn't be created. Please try again later.")
+                throw new Error500Handler("Only Amni staff accounts can log into the staff portal.")
             }
+            
+            
+
+            
         }
     }).catch(error => {
         console.log({error});
