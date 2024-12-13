@@ -2,8 +2,7 @@ const mongoose = require("mongoose")
 
 const Schema = new mongoose.Schema({
     acceptedTermsAt: {
-        type: Date,
-        default: Date.now()
+
     },
     uid: {
         type: String
@@ -29,11 +28,12 @@ const Schema = new mongoose.Schema({
     admin: {
         
     },
+    
     role: {
         type: String,
-        enum: ["User", "End User", "VRM", "C and P Staff", "CO", "GM", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin"],
+        enum: ["Vendor", "Amni Staff", "End User", "VRM", "C and P Staff", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin"],
         // [Supervisor, Executive Approver, ]
-        default: "User"
+        default: "Vendor"
     },
     isSuspended: {
         type: Boolean,
@@ -51,7 +51,7 @@ const Schema = new mongoose.Schema({
     },
     tempRole: {
         type: String,
-        enum: ["User", "End User", "VRM", "C and P Staff", "CO", "GM", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin"]
+        enum: ["Vendor", "Amni Staff", "VRM", "C and P Staff", "CO", "GM", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin"]
     }
 }, {timestamps: true})
 

@@ -187,6 +187,10 @@ exports.fetchAllApprovalData = async (req, res, next) => {
 
     returned = sortListAlphabetically(returned);
 
+    inProgress = sortListAlphabetically(inProgress)
+
+    parkedL2 = sortListAlphabetically(parkedL2)
+
     console.log({
       parkedL2: parkedL2.length,
       l3: l3.length,
@@ -226,6 +230,7 @@ const sortListAlphabetically = (list) => {
 
     // names must be equal
     return 0;
+
   });
 };
 
@@ -363,8 +368,8 @@ exports.fetchDashboardData = async (req, res, next) => {
             registrationFormCopy.form.pages[0].sections[4].fields[2].value = item?.primaryContact?.familyName
             registrationFormCopy.form.pages[0].sections[4].fields[3].value = item?.primaryContact?.designation
             registrationFormCopy.form.pages[0].sections[4].fields[4].value = item?.primaryContact?.email
-            registrationFormCopy.form.pages[0].sections[4].fields[5].value = item?.primaryContact?.phone1
-            registrationFormCopy.form.pages[0].sections[4].fields[6].value = item?.primaryContact?.phone2
+            registrationFormCopy.form.pages[0].sections[4].fields[5].value = item?.primaryContact?.phone1?.internationalNumber ? item?.primaryContact?.phone1.internationalNumber : item?.primaryContact?.phone1
+            registrationFormCopy.form.pages[0].sections[4].fields[6].value = item?.primaryContact?.phone2?.internationalNumber ? item?.primaryContact?.phone2.internationalNumber : item?.primaryContact?.phone2
         }
 
         if (item.secondaryContact) {
@@ -373,8 +378,8 @@ exports.fetchDashboardData = async (req, res, next) => {
             registrationFormCopy.form.pages[0].sections[5].fields[3].value = item?.secondaryContact?.familyName
             registrationFormCopy.form.pages[0].sections[5].fields[4].value = item?.secondaryContact?.designation
             registrationFormCopy.form.pages[0].sections[5].fields[5].value = item?.secondaryContact?.email
-            registrationFormCopy.form.pages[0].sections[5].fields[6].value = item?.secondaryContact?.phone1
-            registrationFormCopy.form.pages[0].sections[5].fields[7].value = item?.secondaryContact?.phone2
+            registrationFormCopy.form.pages[0].sections[5].fields[6].value = item?.secondaryContact?.phone1?.internationalNumber ? item?.primaryContact?.phone1.internationalNumber : item?.primaryContact?.phone1
+            registrationFormCopy.form.pages[0].sections[5].fields[7].value = item?.secondaryContact?.phone2?.internationalNumber ? item?.primaryContact?.phone2.internationalNumber : item?.primaryContact?.phone2
         }
 
         //Add hq address
@@ -395,6 +400,8 @@ exports.fetchDashboardData = async (req, res, next) => {
 
         //Add vendor id to company
         const updatedCompany = await Company.findOneAndUpdate({ _id: item._id }, { vendor: savedNewVendor._id, vendorAppAdminProfile: user._id, userID: uid });
+
+        updatedCompany.vendor = savedNewVendor._id
 
 
 
@@ -703,7 +710,7 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
     const { uid } = req.user;
     const { id } = req.params;
 
-    const company = await Company.findOne({ vendor: id });
+    const company = await Company.findOne({ _id: id });
 
     if (!company) {
       throw new Error403Handler("The requested vendor record does not exist.");
@@ -717,7 +724,7 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
 
     const vendorRegistrationForm = await VendorModel.findOne({
-      _id: id,
+      _id: company.vendor,
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
 
     let tempRegistrationForm = { ...generalRegistrationForm._doc };

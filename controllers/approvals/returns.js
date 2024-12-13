@@ -37,7 +37,7 @@ exports.returnApplicationToVendor = async (req, res, next) => {
         //Update vendor flags stage to returned
         const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
             flags: {
-                ...vendor.flags, stage: "returned"},
+                ...vendor.flags, stage: "returned", status: "returned"},
             $push: {
                 approvalHistory: {
                     date: Date.now(),
