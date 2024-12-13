@@ -31,7 +31,7 @@ const Schema = new mongoose.Schema({
     
     role: {
         type: String,
-        enum: ["Vendor", "Amni Staff", "End User", "VRM", "C and P Staff", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin"],
+        enum: ["Vendor", "Amni Staff", "End User", "VRM", "C and P Staff", "Supervisor", "Executive Approver", "HOD", "Insurance Officer", "Admin", "C&P Admin", "IT Admin"],
         // [Supervisor, Executive Approver, ]
         default: "Vendor"
     },
