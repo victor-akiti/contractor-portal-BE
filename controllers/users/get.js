@@ -17,7 +17,37 @@ exports.fetchAllEndUsers = async () => {
 
 exports.fetchAllUsers = async (req, res, next) => {
    try {
+      const allStaff = await UserModel.find({role: {$nin: "Vendor"}})
 
+      //Sort all staff alphabetically
+
+      allStaff.sort((a, b) => {
+         if (a.name < b.name) {
+            return -1
+         }
+         if (a.firstName > b.firstName) {
+            return 1
+         }
+         return 0
+      })
+
+      const allVendors = await UserModel.find({role: "Vendor"})
+
+      allVendors.sort((a, b) => {
+         if (a.name < b.name) {
+            return -1
+         }
+         if (a.firstName > b.firstName) {
+            return 1
+         }
+         return 0
+      })
+
+      sendBasicResponse(res, {
+         allStaff,
+         allVendors
+      })
+      
       
    } catch (error) {
       next(error)

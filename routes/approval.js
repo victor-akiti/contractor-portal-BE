@@ -7,27 +7,27 @@ const { checkIfUserHasPermissions } = require("../middleWare/roleFilters")
 const { validateVendor } = require("../middleWare/validateVendor")
 
 //Process routes
-Router.post("/process/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), processApplicationToNextStage)
-Router.post("/approve", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), processApplicationToL3)
-Router.post("/revert/l2/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), validateVendor, revertApplicationToL2)
-Router.post("/revert/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), revertApplicationToPreviousStage)
-Router.post("/exposed-person/save/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), saveExposedPerson)
-Router.post("/exposed-person/remove/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), removeExposedPerson)
+Router.post("/process/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), processApplicationToNextStage)
+Router.post("/approve", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), processApplicationToL3)
+Router.post("/revert/l2/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), validateVendor, revertApplicationToL2)
+Router.post("/revert/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), revertApplicationToPreviousStage)
+Router.post("/exposed-person/save/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), saveExposedPerson)
+Router.post("/exposed-person/remove/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), removeExposedPerson)
 
 //Hold routes
-Router.post("/hold/recommend/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), recommendApplicationForHold)
-Router.post("/hold/direct/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), placeDirectlyOnHold)
-Router.get("/hold/approve/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), approveApplicationForHold)
-Router.get("/hold/cancel/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), cancelHoldRequest)
-Router.post("/hold/reject", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), processApplicationToL3)
-Router.post("/hold/L2/revert", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), revertFromHold)
+Router.post("/hold/recommend/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), recommendApplicationForHold)
+Router.post("/hold/direct/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), placeDirectlyOnHold)
+Router.get("/hold/approve/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), approveApplicationForHold)
+Router.get("/hold/cancel/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), cancelHoldRequest)
+Router.post("/hold/reject", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), processApplicationToL3)
+Router.post("/hold/L2/revert", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), revertFromHold)
 
 //Return routes
-Router.post("/return/previous-stage/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), returnApplicationToPreviousStage)
-Router.post("/return/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), returnApplicationToVendor)
+Router.post("/return/previous-stage/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), returnApplicationToPreviousStage)
+Router.post("/return/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), returnApplicationToVendor)
 
 //Retrieve routes
-Router.post("/retrieve/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD"]), retrieveApplication)
+Router.post("/retrieve/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), retrieveApplication)
 
 
 module.exports = Router
