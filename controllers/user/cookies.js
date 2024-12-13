@@ -53,7 +53,7 @@ const setUserCookies = (res, authToken) => {
                 const newUser = new UserModel({
                     uid: result.uid,
                     email: result.email,
-                    role: "End User",
+                    role: "Amni Staff",
                     name: result.name,
                     providerId: result.firebase.sign_in_provider,
                 })
