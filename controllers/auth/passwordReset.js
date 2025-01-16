@@ -13,7 +13,7 @@ exports.sendPasswordResetLink = async (req, res, next) => {
         })
 
         if (!user) {
-            throw new Error400Handler("An error occured. Please contact the system administrator for assistance.")
+            throw new Error400Handler("Please enter the email address associated with your account.")
         }
 
         const firebase = require("firebase/app")
