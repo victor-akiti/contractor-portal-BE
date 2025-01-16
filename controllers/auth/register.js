@@ -119,7 +119,7 @@ exports.registerNewAccount = async (req, res, next) => {
             //Update invite to show that invite has been used
             const date = new Date()
             const used = date.getTime()
-            const updatedInvite = await Invite.findOneAndUpdate({_id: inviteWithHash._id}, {used})
+            const updatedInvite = await Invite.findOneAndUpdate({_id: inviteWithHash._id, uid: result.uid,}, {used})
 
             console.log({updatedInvite});
 
@@ -289,7 +289,7 @@ exports.registerNewPortalAdminAccount = async (req, res, next) => {
 
 
 const validatePasswords = (password, passwordConfirmation) => {
-    const passwordRegex = /^(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,}$/
+    const passwordRegex = /^(?=.*\d)(?=.*[#$@!%&*?_])[A-Za-z\d#$@!%&*?_]{8,}$/
     if (!password) {
         return({
             isValid: false,

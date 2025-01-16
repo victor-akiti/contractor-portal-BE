@@ -151,6 +151,9 @@ const Schema = new mongoose.Schema({
     },
     returnRequest: {
         type: Object
+    },
+    invitedUser: {
+        
     }
     
 }, {timestamps: true})
