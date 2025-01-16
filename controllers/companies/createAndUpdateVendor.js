@@ -41,6 +41,9 @@ exports.createVendor = async (req, res, next) => {
         //Save new vendor model
         let savedVendor = await newVendorRecord.save()
 
+        //Get user invite
+        const userInvite = await Invite.findOne({email: userProfile.email})
+
 
 
         //Create company record
@@ -48,6 +51,12 @@ exports.createVendor = async (req, res, next) => {
             companyName: formDetails.form.pages[0].sections[0].fields[0].value,
             vendor: savedVendor._id,
             userID: user.uid,
+            contractorDetails: {
+                name: userProfile.name,
+                email: userProfile.email,
+                _id: userProfile._id,
+                invite: userInvite._id
+            },
             vendorAppAdminProfile: userProfile._id,
             flags: {
                 approvals: {
@@ -72,7 +81,7 @@ exports.createVendor = async (req, res, next) => {
         //Update new vendor record with new company id
         const updatedVendor = await VendorModel.findOneAndUpdate({_id: savedVendor._id}, {company: savedCompany._id})
 
-        console.log({savedVendor, savedCompany});
+
         if (savedVendor && savedCompany) {
             sendBasicResponse(res, {vendorID: savedVendor._id})
         }

@@ -53,7 +53,9 @@ exports.logContractorIn = async (req, res, next) => {
         } catch (error) {
             console.log({errorCode: error.code});
             if (error.code === "auth/wrong-password") {
-                throw new Error400Handler("Login failed. Please check your email and password.")
+                throw new Error400Handler("Login Failed. Please check that your email address and password are correct")
+            } else if (error.code === "auth/user-not-found") {
+                throw new Error400Handler("Login Failed. Please check that your email address and password are correct")
             } else if (error.code === "auth/too-many-requests") {
                 throw new Error403Handler(" You have tried to log in too many times in quick succession. Please wait for one minute then try again.")
             } else {
