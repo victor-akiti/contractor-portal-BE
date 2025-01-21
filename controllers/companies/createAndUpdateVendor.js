@@ -3,6 +3,7 @@ const { Error400Handler, Error403Handler, Error500Handler } = require("../../err
 const { sendBasicResponse } = require("../../helpers/response");
 const { CertificateModel } = require("../../models/certificates");
 const { Company } = require("../../models/company");
+const { Invite } = require("../../models/invite");
 const { UserModel } = require("../../models/user");
 const { VendorModel } = require("../../models/vendor");
 
