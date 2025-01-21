@@ -11,8 +11,8 @@ Router.post("/find", authenticate, findInvitedCompany)
 Router.post("/new", authenticate, createNewInvite)
 Router.post("/resend", authenticate, resendInvite)
 Router.post("/archive", authenticate, archiveInvite)
-Router.get("/remind/:id", authenticate, checkIfUserHasPermissions(["Admin", "CO", "HOD", "IT Admin"]), sendInviteReminder)
-Router.get("/invite/:id", authenticate, checkIfUserHasPermissions(["Admin", "CO", "HOD", "IT Admin"]), getInvite)
-Router.get("/renew/:id", authenticate, checkIfUserHasPermissions(["Admin", "CO", "HOD", "IT Admin"]), renewInvite)
+Router.get("/remind/:id", authenticate, checkIfUserHasPermissions(["Admin", "CO", "HOD", "IT Admin", "VRM", "Supervisor"]), sendInviteReminder)
+Router.get("/invite/:id", authenticate, checkIfUserHasPermissions(["Admin", "CO", "HOD", "IT Admin", "VRM", "Supervisor"]), getInvite)
+Router.get("/renew/:id", authenticate, checkIfUserHasPermissions(["Admin", "CO", "HOD", "IT Admin", "VRM", "Supervisor"]), renewInvite)
 
 module.exports = Router
