@@ -26,7 +26,7 @@ exports.returnApplicationToVendor = async (req, res, next) => {
         }
 
         // Check if vendor exists
-        const vendor = await Company.findOne({_id: vendorID}).populate("vendorAppAdminProfile")
+        const vendor = await Company.findOne({vendor: vendorID}).populate("vendorAppAdminProfile")
 
         if (!vendor) {
             throw new Error400Handler("Vendor does not exist")
