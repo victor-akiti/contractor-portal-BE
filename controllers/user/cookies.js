@@ -1,4 +1,5 @@
 const { admin } = require("../../auth/initializeFirebase");
+const { Error401Handler } = require("../../errorHandling/errorHandlers");
 const { UserModel } = require("../../models/user");
 
 const setCookies = async (req, res, next) => {
@@ -8,7 +9,7 @@ const setCookies = async (req, res, next) => {
 
     console.log({authToken});
 
-    setUserCookies(res, authToken)
+    setUserCookies(res, authToken, next)
 
     
 
@@ -16,8 +17,9 @@ const setCookies = async (req, res, next) => {
     
 }
 
-const setUserCookies = (res, authToken) => {
-    res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL)
+const setUserCookies = (res, authToken, next) => {
+    try {
+        res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL)
     res.setHeader('Access-Control-Allow-Credentials', "true")
     const jwt = require("jsonwebtoken")
     const token = jwt.sign(authToken, process.env.JWT_SECRET)
@@ -85,13 +87,11 @@ const setUserCookies = (res, authToken) => {
         }
     }).catch(error => {
         console.log({error});
-        reject ({
-            error: {
-                failed: true,
-                message: "Could not complete this operation because you're currently not logged in. Please log in and try again."
-            }
-        })
+        throw new Error401Handler("Could not complete this operation because you're currently not logged in. Please log in and try again.")
     })
+    } catch (error) {
+        next(error)
+    }
 }
 
 module.exports = {
