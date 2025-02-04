@@ -35,7 +35,7 @@ exports.returnApplicationToVendor = async (req, res, next) => {
         console.log({vendor});
         
         //Update vendor flags stage to returned
-        const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
+        const updatedApplication = await Company.findOneAndUpdate({_id: vendorID}, {
             flags: {
                 ...vendor.flags, stage: "returned", status: "returned"},
             $push: {
@@ -50,8 +50,12 @@ exports.returnApplicationToVendor = async (req, res, next) => {
             new: true
         })
 
+        if (!updatedApplication) {
+            throw new Error500Handler("Error updating vendor. Please try again later or contact the site administrator.")
+        }
+
         //Save updated vendor form
-        const savedVendorForm = await VendorModel.findOneAndUpdate({_id: vendorID}, {"form.pages": req.body.pages}, {
+        const savedVendorForm = await VendorModel.findOneAndUpdate({_id: updatedApplication.vendor}, {"form.pages": req.body.pages}, {
             new: true
         })
 
