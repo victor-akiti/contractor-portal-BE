@@ -6,6 +6,7 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const SmeeClient = require("smee-client")
+const morgan = require("morgan")
 
 //Declare routers
 const defaultRouter = require("./routes/default")
@@ -27,6 +28,8 @@ mongoose.connect(process.env.MONGO_CONNECT_URL).then(response => {
 }).catch(error => {
     console.log({error});
 })
+
+app.use(morgan("combined"))
 
 app.use(cookieParser());
 
