@@ -62,7 +62,7 @@ exports.returnApplicationToVendor = async (req, res, next) => {
         //Get the CnP HOD and GM emails to add as bcc
 
         const sendReturnEmail = await sendMail({
-            to: vendor.vendorAppAdminProfile.email,
+            to: vendor?.vendorAppAdminProfile?.email ? vendor.vendorAppAdminProfile.email : vendor.contractorDetails.email,
             // bcc: req.user.email,
             subject: `Amni Contractor Registration for ${vendor.companyName}  - Issues`,
             html: returnApplicationToVendorEmailTemplate({
