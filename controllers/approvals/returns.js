@@ -61,6 +61,11 @@ exports.returnApplicationToVendor = async (req, res, next) => {
 
         //Get the CnP HOD and GM emails to add as bcc
 
+        console.log(vendor?.vendorAppAdminProfile?.email);
+        console.log(vendor?.contractorDetails?.email);
+        
+        
+
         const sendReturnEmail = await sendMail({
             to: vendor?.vendorAppAdminProfile?.email ? vendor.vendorAppAdminProfile.email : vendor.contractorDetails.email,
             // bcc: req.user.email,
@@ -104,8 +109,11 @@ exports.returnApplicationToVendor = async (req, res, next) => {
             sendBasicResponse(res, {})
         }
 
+        const vendorLevel = vendor.flags.level ? vendor.flags.level : 0
+        
+
         //Create event
-        createNewEvent(req.user._id, req.user.name, req.user.role, vendor._id, vendor.companyName, eventDefinitions.returns[approvalStages[vendor.flags.level]].application, req.body.newRemarks, "returned")
+        createNewEvent(req.user._id, req.user.name, req.user.role, vendor._id, vendor.companyName, eventDefinitions.returns[approvalStages[vendorLevel]].application, req.body.newRemarks, "returned")
 
         console.log({savedVendorForm});
         
