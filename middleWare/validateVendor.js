@@ -11,9 +11,14 @@ const validateVendor = async (req, res, next) => {
             throw new Error400Handler("A vendor ID is reqired to complete this action")
         }
 
-        const vendor = await VendorModel.findOne({_id: vendorID})
+        const company = await Company.findOne({_id: vendorID})
 
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        console.log({company});
+        
+
+        const vendor = await VendorModel.findOne({_id: company.vendor})
+
+        
         
         if (!vendor || !company) {
             throw new Error404Handler("The vendor account you're trying to view or update does not exist.")
