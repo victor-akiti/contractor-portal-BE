@@ -61,6 +61,11 @@ exports.returnApplicationToVendor = async (req, res, next) => {
 
         //Get the CnP HOD and GM emails to add as bcc
 
+        console.log(vendor?.vendorAppAdminProfile?.email);
+        console.log(vendor?.contractorDetails?.email);
+        
+        
+
         const sendReturnEmail = await sendMail({
             to: vendor?.vendorAppAdminProfile?.email ? vendor.vendorAppAdminProfile.email : vendor.contractorDetails.email,
             // bcc: req.user.email,
@@ -104,8 +109,11 @@ exports.returnApplicationToVendor = async (req, res, next) => {
             sendBasicResponse(res, {})
         }
 
+        const vendorLevel = vendor.flags.level ? vendor.flags.level : 0
+        
+
         //Create event
-        createNewEvent(req.user._id, req.user.name, req.user.role, vendor._id, vendor.companyName, eventDefinitions.returns[approvalStages[vendor.flags.level]].application, req.body.newRemarks, "returned")
+        createNewEvent(req.user._id, req.user.name, req.user.role, vendor._id, vendor.companyName, eventDefinitions.returns[approvalStages[vendorLevel]].application, req.body.newRemarks, "returned")
 
         console.log({savedVendorForm});
         
@@ -131,7 +139,10 @@ exports.retrieveApplication = async (req, res, next) => {
         console.log(req.user);
         
 
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        const company = await Company.findOne({_id: vendorID})
+
+        console.log({companyName: company.companyName, status: company.flags});
+        
 
         if (!company) {
             throw new Error400Handler("Company does not exist")
@@ -139,7 +150,7 @@ exports.retrieveApplication = async (req, res, next) => {
 
         //Change status to pending if current status is returned
         if (company.flags.status === "returned") {
-            const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
+            const updatedApplication = await Company.findOneAndUpdate({_id: vendorID}, {
                 flags: {
                     ...company.flags,  status: "pending"
                 },

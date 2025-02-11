@@ -14,9 +14,11 @@ exports.processApplicationToNextStage = async (req, res, next) => {
     
     try {
         const {vendorID} = req.params
-        const vendor = await VendorModel.findOne({_id: vendorID})
 
-        const company = await Company.findOne({vendor: vendor._id})
+        const company = await Company.findOne({_id: vendorID})
+        const vendor = await VendorModel.findOne({_id: company.vendor})
+
+        
 
         console.log({company});
         
@@ -93,7 +95,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
 
 
         if (currentLevel === 0) {
-            const contractsOfficers = await UserModel.find({role: "CO"})
+            const contractsOfficers = await UserModel.find({role: "Supervisor"})
 
             for (let index = 0; index < contractsOfficers.length; index++) {
                 const element = contractsOfficers[index];
@@ -102,6 +104,8 @@ exports.processApplicationToNextStage = async (req, res, next) => {
                 usersToMail.push(element)
                 
             }
+
+            
             
         } else if (currentLevel === 1) {
             const {selectedEndUsers} = req.body
@@ -305,7 +309,7 @@ exports.revertApplicationToPreviousStage = async (req, res, next) => {
             throw new Error400Handler("Revert reason is required")
         }   
 
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        const company = await Company.findOne({_id: vendorID})
 
         let flags = {...company.flags}
 
@@ -325,7 +329,7 @@ exports.revertApplicationToPreviousStage = async (req, res, next) => {
 
         
 
-        const updatedCompany = await Company.findOneAndUpdate({vendor: new mongoose.Types.ObjectId(vendorID)}, {
+        const updatedCompany = await Company.findOneAndUpdate({_id: vendorID}, {
             flags: flags,
             $push: {
                 approvalHistory: {
@@ -359,17 +363,22 @@ exports.processApplicationToL3 = async (req, res, next) => {
 
 exports.revertApplicationToL2 = async (req, res, next) => {
     try {
-        console.log(req.body.from);
+        console.log({from: req.body.from});
         console.log(req.user);
         const {vendorID} = req.params
+        console.log({vendorID});
+        
         const {from, reason} = req.body
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        const company = await Company.findOne({_id: vendorID})
+
+        console.log({company});
+        
 
         let updatedFlags = {...company.flags}
 
         updatedFlags.status = "pending"
         updatedFlags.approved = false
-        updatedFlags.level = from  === "parked" ? company.flags.level : 5
+        updatedFlags.level = from  === "parked" || from === "park requests" ? company.flags.level : 5
 
         if (!updatedFlags.revertToL2s) {
             updatedFlags.revertToL2s = {}
@@ -427,9 +436,11 @@ exports.saveExposedPerson = async (req, res, next) => {
             throw new Error400Handler("Vendor ID is required")
         }
 
-        const vendor = await VendorModel.findOne({_id: vendorID})
+        const company = await Company.findOne({_id: vendorID})
 
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        const vendor = await VendorModel.findOne({_id: company.vendor})
+
+        
 
         if (!vendor || !company) {
             throw new Error404Handler("The vendor account you're trying to update does not exist.")
@@ -511,9 +522,11 @@ exports.removeExposedPerson = async (req, res, next) => {
             throw new Error400Handler("Vendor ID is required")
         }
 
-        const vendor = await VendorModel.findOne({_id: vendorID})
+        const company = await Company.findOne({_id: vendorID})
 
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        const vendor = await VendorModel.findOne({_id: company.vendor})
+
+        
 
         if (!vendor || !company) {
             throw new Error404Handler("The vendor account you're trying to update does not exist.")
