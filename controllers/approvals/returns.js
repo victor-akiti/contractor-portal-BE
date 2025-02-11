@@ -139,7 +139,10 @@ exports.retrieveApplication = async (req, res, next) => {
         console.log(req.user);
         
 
-        const company = await Company.findOne({vendor: new mongoose.Types.ObjectId(vendorID)})
+        const company = await Company.findOne({_id: vendorID})
+
+        console.log({companyName: company.companyName, status: company.flags});
+        
 
         if (!company) {
             throw new Error400Handler("Company does not exist")
@@ -147,7 +150,7 @@ exports.retrieveApplication = async (req, res, next) => {
 
         //Change status to pending if current status is returned
         if (company.flags.status === "returned") {
-            const updatedApplication = await Company.findOneAndUpdate({vendor: vendorID}, {
+            const updatedApplication = await Company.findOneAndUpdate({_id: vendorID}, {
                 flags: {
                     ...company.flags,  status: "pending"
                 },

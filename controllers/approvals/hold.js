@@ -12,9 +12,11 @@ exports.recommendApplicationForHold = async (req, res, next) => {
     try {
         //Confirm that application exists
         const {vendorID} = req.params
-        const vendor = await VendorModel.findOne({_id: vendorID})
 
-        const company = await Company.findOne({vendor: vendor._id})
+        const company = await Company.findOne({_id: vendorID})
+        const vendor = await VendorModel.findOne({_id: company.vendor})
+
+        
 
         console.log({vendor, company});
         
@@ -25,25 +27,39 @@ exports.recommendApplicationForHold = async (req, res, next) => {
         })
 
         //Get HOD/Supervisor account
-        const supervisorAccount = await UserModel.findOne({role: "Supervisor"})
+        const supervisorAccounts = await UserModel.find({role: "Supervisor"})
         const hodAccount = await UserModel.findOne({role: "HOD"})
+        const cAndPAdminAccount = await UserModel.findOne({role: "C&P Admin"})
+        const itAdmin = await UserModel.findOne({role: "Admin"})
+
+        console.log({itAdmin});
         
+
+        //Check if any user temporarily hold supervisor, hod or CnP admin roles
+
+        console.log({hodAccount, cAndPAdminAccount});
+        
+        
+        let usersToMail = []
 
         const supervisors = []
 
         let endUsersHistory = []
 
-        if (supervisorAccount) {
-            supervisors.push(supervisorAccount._id)
-            endUsersHistory.push({
-                supervisorID: supervisorAccount._id,
-                superVisorName: supervisorAccount.name,
+        if (supervisorAccounts.length > 0) {
+            supervisorAccounts.forEach((item) => {
+                supervisors.push(item._id)
+                endUsersHistory.push({
+                supervisorID: item._id,
+                superVisorName: item.name,
                 stage: "A",
                 type: "hold approval",
-                supervisorEmail: supervisorAccount.email,
+                supervisorEmail: item.email,
                 date: Date.now(),
                 recommendedBy: "System"
             })
+        })
+            
         }
 
         if (hodAccount) {
@@ -55,6 +71,36 @@ exports.recommendApplicationForHold = async (req, res, next) => {
                 stage: "A",
                 type: "hold approval",
                 supervisorEmail: hodAccount.email,
+                date: Date.now(),
+                recommendedBy: "System"
+            })
+        }
+
+        if (cAndPAdminAccount) {
+            supervisors.push(cAndPAdminAccount._id)
+
+            endUsersHistory.push({
+                supervisorID: cAndPAdminAccount._id,
+                superVisorName: cAndPAdminAccount.name,
+                stage: "A",
+                type: "hold approval",
+                supervisorEmail: cAndPAdminAccount.email,
+                date: Date.now(),
+                recommendedBy: "System"
+            })
+        }
+
+        if (itAdmin) {
+            supervisors.push(itAdmin._id)
+
+            usersToMail.push(itAdmin)
+
+            endUsersHistory.push({
+                supervisorID: itAdmin._id,
+                superVisorName: itAdmin.name,
+                stage: "A",
+                type: "hold approval",
+                supervisorEmail: itAdmin.email,
                 date: Date.now(),
                 recommendedBy: "System"
             })
@@ -88,29 +134,36 @@ exports.recommendApplicationForHold = async (req, res, next) => {
 
         
         //Send supervisors email
-        const sendApproverEmail = await sendMail({
-            to: supervisorAccount.email,
-            cc: req.user.email,
-            bcc: hodAccount.email,
-            subject: `Registration for ${company.companyName} has been recommended for L2 hold`,
-            html: recommendForHoldEmailTemplate({
-                name: req.user.name,
-                companyName: company.companyName,
-                vendorID,
 
-            }).html,
-            text: recommendForHoldEmailTemplate({
-                name: req.user.name,
-                companyName: company.companyName,
-                vendorID,
-            }).text
+        usersToMail.forEach(async item => {
+            console.log({item});
+            
+            const sendApproverEmail = await sendMail({
+                to: item.email,
+                // cc: req.user.email,
+                // bcc: hodAccount.email,
+                subject: `Registration for ${company.companyName} has been recommended for L2 hold`,
+                html: recommendForHoldEmailTemplate({
+                    name: req.user.name,
+                    companyName: company.companyName,
+                    vendorID,
+    
+                }).html,
+                text: recommendForHoldEmailTemplate({
+                    name: req.user.name,
+                    companyName: company.companyName,
+                    vendorID,
+                }).text
+            })
         })
 
-        if (sendApproverEmail[0].statusCode === 202 || sendApproverEmail[0].statusCode === "202") {
-            //Create event
-            sendBasicResponse(res, {})
-        }
 
+        // if (sendApproverEmail[0].statusCode === 202 || sendApproverEmail[0].statusCode === "202") {
+        //     //Create event
+        //     sendBasicResponse(res, {})
+        // }
+
+        sendBasicResponse(res, {})
         const user = await UserModel.findOne({uid: req.user.uid})
 
         //Create event
@@ -129,9 +182,10 @@ exports.approveApplicationForHold = async (req, res, next) => {
         const user = req.user
 
         //Check if vendor records exist. If they don't return an error
-        const vendor = await VendorModel.findOne({_id: vendorID})
+        const company = await Company.findOne({_id: vendorID})
+        const vendor = await VendorModel.findOne({_id: company.vendor})
 
-        const company = await Company.findOne({vendor: vendor._id})
+        
 
         console.log({vendor, company});
         if (!vendor || !company) {
@@ -139,7 +193,7 @@ exports.approveApplicationForHold = async (req, res, next) => {
         }
 
         //If records exists, update flags to show company as parked
-        const parkedVendor = await Company.findOneAndUpdate({vendor: new mongoose.Types.ObjectId(vendorID)}, {"flags.status": "parked", $push: {
+        const parkedVendor = await Company.findOneAndUpdate({_id: vendorID}, {"flags.status": "parked", $push: {
             approvalHistory: {
                 date: Date.now(),
                 action: `Parked at L2`,
@@ -191,8 +245,9 @@ exports.placeDirectlyOnHold = async (req, res, next) => {
         let {vendorID} = req.params
         let currentLevel = 0
 
-        const vendor = await VendorModel.findOne({_id: vendorID})
-        const company = await Company.findOne({vendor: vendor._id})
+        const company = await Company.findOne({_id: vendorID})
+        const vendor = await VendorModel.findOne({_id: company.vendor})
+        
 
         const user = req.user
 
@@ -235,7 +290,7 @@ exports.placeDirectlyOnHold = async (req, res, next) => {
 
 
         //If records exists, update flags to show company as parked
-        const parkedVendor = await Company.findOneAndUpdate({vendor: new mongoose.Types.ObjectId(vendorID)}, {flags: newFlags,
+        const parkedVendor = await Company.findOneAndUpdate({_id: vendorID}, {flags: newFlags,
              $push: {
             approvalHistory: {
                 date: Date.now(),
