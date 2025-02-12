@@ -57,7 +57,7 @@ exports.fetchAllUsers = async (req, res, next) => {
 exports.fetchAllStaff = async (req, res, next) => {
    try {
 
-      const allStaff = await UserModel.find({role: {$nin: "User"}})
+      const allStaff = await UserModel.find({role: {$nin: "Vendor"}})
 
       //Sort all staff alphabetically
 
