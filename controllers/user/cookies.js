@@ -29,6 +29,7 @@ const setUserCookies = (res, authToken, next) => {
     //Check user role and return appropriate role in response
     admin.auth().verifyIdToken(authToken).then(async result => {
         console.log({result: result.firebase});
+        console.log({fullResult: result})
         const user = await UserModel.findOne({uid: result.uid})
 
         console.log({user});
@@ -45,7 +46,32 @@ const setUserCookies = (res, authToken, next) => {
         
             res.status(200).send({status: "OK", data: {user}})
         } else {
-            //Create user record in mongoDB
+            //Check if a user exists with the result email
+            const existingUser = await UserModel.findOne({email: result.email})
+
+            if (existingUser) {
+                //Update existing user with uid and provider id
+                const updatedUser = UserModel.findOneAndUpdate({
+                    email: result.email
+                },  {
+                    uid: result.uid,
+                    name: result.name,
+                    providerId: result.firebase.sign_in_provider,
+                }, {new: true})
+
+                if (updatedUser) {
+                    res.cookie("authToken", authToken, {
+                        httpOnly: true,
+                        sameSite: "none", 
+                        secure: true
+                    })
+                    
+                
+                
+                    res.status(200).send({status: "OK", data: {user: updatedUser}})
+                }
+            } else {
+                //Create user record in mongoDB
 
             console.log({theUserrecord: result});
 
@@ -80,6 +106,8 @@ const setUserCookies = (res, authToken, next) => {
             } else {
                 throw new Error500Handler("Only Amni staff accounts can log into the staff portal.")
             }
+            }
+            
             
             
 
