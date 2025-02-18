@@ -1001,8 +1001,19 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
             registrationFormCopy.form.pages[0].sections[5].fields[3].value = item?.secondaryContact?.familyName
             registrationFormCopy.form.pages[0].sections[5].fields[4].value = item?.secondaryContact?.designation
             registrationFormCopy.form.pages[0].sections[5].fields[5].value = item?.secondaryContact?.email
-            registrationFormCopy.form.pages[0].sections[5].fields[6].value = item?.secondaryContact?.phone1?.internationalNumber ? item?.primaryContact?.phone1.internationalNumber : item?.primaryContact?.phone1
-            registrationFormCopy.form.pages[0].sections[5].fields[7].value = item?.secondaryContact?.phone2?.internationalNumber ? item?.primaryContact?.phone2.internationalNumber : item?.primaryContact?.phone2
+            if (item?.secondaryContact?.phone1?.internationalNumber) {
+                registrationFormCopy.form.pages[0].sections[5].fields[6].value = item?.secondaryContact?.phone1.internationalNumber
+            } else {
+                registrationFormCopy.form.pages[0].sections[5].fields[6].value = item?.secondaryContact?.phone1
+            }
+
+            if (item?.secondaryContact?.phone2?.internationalNumber) {
+                registrationFormCopy.form.pages[0].sections[5].fields[7].value = item?.secondaryContact?.phone2.internationalNumber
+            } else {
+                registrationFormCopy.form.pages[0].sections[5].fields[7].value = item?.secondaryContact?.phone2
+            }
+            // registrationFormCopy.form.pages[0].sections[5].fields[6].value = item?.secondaryContact?.phone1?.internationalNumber ? item?.primaryContact?.phone1.internationalNumber : item?.primaryContact?.phone1
+            // registrationFormCopy.form.pages[0].sections[5].fields[7].value = item?.secondaryContact?.phone2?.internationalNumber ? item?.primaryContact?.phone2.internationalNumber : item?.primaryContact?.phone2
         }
 
         //Add hse record
