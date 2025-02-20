@@ -1,5 +1,6 @@
 const { setCookies } = require("../controllers/user/cookies")
 const { setOutOfOffice, setInOffice } = require("../controllers/user/outOfOffice")
+const { removeUser } = require("../controllers/user/removeUser")
 const authenticate = require("../middleWare/authenticateRequests")
 
 
@@ -9,6 +10,7 @@ const Router = require("express").Router()
 Router.put("/ver", setCookies)
 Router.post("/outOfOffice/set", authenticate, setOutOfOffice)
 Router.post("/outOfOffice/unset", authenticate, setInOffice)
+Router.delete("/:id", authenticate, removeUser)
 
 
 module.exports = Router 
