@@ -8,8 +8,9 @@ exports.removeUser = async (req, res, next) => {
     try {
         console.log("Removing user");
         const { id } = req.params
+        const user = req.user
 
-        console.log({id});
+        const userRecord = await UserModel.findOne({uid: user.uid})
         
 
         //Check if the user exists
@@ -56,6 +57,7 @@ exports.removeUser = async (req, res, next) => {
                 sendBasicResponse(res, {})
 
                 //Create an event
+                createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, "N/A", `Removed ${userToDelete.name}'s account`, {}, "user removed")
                 
             }).catch((error) => {
                 throw new Error500Handler("An error occured and the user couldn't be deleted. Please try again later.")

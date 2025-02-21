@@ -162,8 +162,10 @@ exports.fetchAllApprovalData = async (req, res, next) => {
       } else {
         // l2.push(item);
         if (item?.flags?.submitted || item?.flags?.stage === "submitted") {
-          if (item.currentEndUsers && item.currentEndUsers.includes(user._id)) {
-            needingAttendion.push({ ...item._doc, needsAttention: true });
+          
+          if (item.currentEndUsers && item.currentEndUsers.includes(String(user._id))) {
+            
+            needingAttendion.push({ ...item, needsAttention: true });
           } else {
             notNeedingAttention.push(item);
           }
@@ -172,6 +174,9 @@ exports.fetchAllApprovalData = async (req, res, next) => {
         
       }
     });
+
+    console.log({ needingAttendion });
+    
 
     //Sort notNeedingAttention
     notNeedingAttention = sortListAlphabetically(notNeedingAttention);
@@ -195,7 +200,7 @@ exports.fetchAllApprovalData = async (req, res, next) => {
 
     sendBasicResponse(res, {
       invites: sortedInvites,
-      pendingL2: notNeedingAttention,
+      pendingL2: [...needingAttendion, ...notNeedingAttention],
       l3,
       completedL2: parkedL2,
       inProgress,
