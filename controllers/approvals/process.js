@@ -96,13 +96,19 @@ exports.processApplicationToNextStage = async (req, res, next) => {
 
         if (currentLevel === 0) {
             const contractsOfficers = await UserModel.find({role: "Supervisor"})
+            const cnpHOD = await UserModel.findOne({role: "HOD"})
 
             for (let index = 0; index < contractsOfficers.length; index++) {
                 const element = contractsOfficers[index];
 
-                currentEndUsers.push(element._id)
+                currentEndUsers.push(String(element._id))
                 usersToMail.push(element)
                 
+            }
+
+            if (cnpHOD) {
+                currentEndUsers.push(String(cnpHOD._id))
+                usersToMail.push(cnpHOD)
             }
 
             
@@ -112,7 +118,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
             for (let index = 0; index < selectedEndUsers.length; index++) {
                 const element = selectedEndUsers[index];
 
-                currentEndUsers.push(element._id)
+                currentEndUsers.push(String(element._id))
                 usersToMail.push(element)
                 
             }
@@ -175,7 +181,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
             
 
             if (hodAccount) {
-                currentEndUsers.push(hodAccount._id)
+                currentEndUsers.push(String(hodAccount._id))
                 usersToMail.push(hodAccount)
             }
             
@@ -193,7 +199,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
             
 
             if (executiveApprover) {
-                currentEndUsers.push(executiveApprover._id)
+                currentEndUsers.push(String(executiveApprover._id))
                 usersToMail.push(executiveApprover)
             }
         } else if (currentLevel === 5) {
