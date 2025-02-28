@@ -1,4 +1,4 @@
-const { Error400Handler } = require("../../errorHandling/errorHandlers")
+const { Error400Handler, Error404Handler } = require("../../errorHandling/errorHandlers")
 const { newPortalAdminRequestTemplate } = require("../../helpers/emailTemplates")
 const { sendMail } = require("../../helpers/mailer")
 const { sendBasicResponse } = require("../../helpers/response")
@@ -57,13 +57,16 @@ exports.requestNewPortalAdministrator = async (req, res, next) => {
         const {vendorID} = req.params
 
         const {email} = req.body
+
+        console.log({vendorID, email});
+        
         
 
         if (!vendorID) {
             throw new Error400Handler("Vendor ID is required")
         }
 
-        const company = await Company.findOne({vendor: vendorID})
+        const company = await Company.findOne({_id: vendorID})
 
         if (!company) {
             throw new Error404Handler("Company not found")

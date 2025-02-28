@@ -1,5 +1,6 @@
 const { updateCertificate } = require("../controllers/companies/certificates")
 const { createVendor, updateVendor } = require("../controllers/companies/createAndUpdateVendor")
+const { replaceEndUser, addEndUser, removeEndUser } = require("../controllers/companies/endUsers")
 const { fetchAllCompanies, findCompanyByString, fetchCompanyCurrentRegistrationStatus, fetchAllApprovalData, fetchDashboardData, fetchRegistrationForm, fetchVendorRegistrationForm, fetchVendorApprovalData } = require("../controllers/companies/get")
 const { makeVendorInactive } = require("../controllers/companies/inactive")
 const { getAllSettings, updatePortalAdministratorProfile, requestNewPortalAdministrator } = require("../controllers/companies/settings")
@@ -30,5 +31,10 @@ Router.put("/job-categories/:id", authenticate, updateCompanyJobCategoriesList)
 Router.get("/settings/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin", "IT Admin"]), getAllSettings)
 Router.put("/portal-admin/update/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin", "IT Admin"]), updatePortalAdministratorProfile)
 Router.post("/portal-admin/replace/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin", "IT Admin"]), requestNewPortalAdministrator)
+
+//End user management routes
+Router.put("/vendor/end-users/:companyID", authenticate, checkIfUserHasPermissions(["IT Admin", "Admin", "HOD", "C&P Admin"]), replaceEndUser)
+Router.post("/vendor/end-users/:companyID", authenticate, checkIfUserHasPermissions(["IT Admin", "Admin", "HOD", "C&P Admin"]), addEndUser)
+Router.post("/vendor/end-users/remove/:companyID", authenticate, checkIfUserHasPermissions(["IT Admin", "Admin", "HOD", "C&P Admin"]), removeEndUser)
 
 module.exports = Router
