@@ -703,7 +703,39 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
       throw new Error403Handler("The requested vendor record does not exist.");
     }
 
-    console.log({ uid, body: req.params });
+    let portalAdministrator = {}
+
+    if (company.vendorAppAdminProfile) {
+      //Get vendor portal administrator
+      portalAdministrator = await UserModel.findOne({
+        _id: company.vendorAppAdminProfile,
+      });
+    } else if (company.userID) {
+      portalAdministrator = await UserModel.findOne({
+        uid: company.userID
+      })
+    }
+
+    let allAmniStaff = await UserModel.find({ role: {$nin: "Vendor"} }).lean()
+
+    let currentEndUsers = []
+
+    if (company.currentEndUsers) {
+      company.currentEndUsers.forEach(async endUser => {
+        const theEndUser = await UserModel.findOne({
+          _id: endUser
+        })
+
+        currentEndUsers.push(theEndUser)
+        
+      })
+    } 
+    
+    
+
+    
+
+
     //Get contractor registration form
 
     const generalRegistrationForm = await FormModel.findOne({
@@ -791,9 +823,6 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
         }
       }
 
-      console.log({
-        tempFormLength: tempVendorRegistrationForm.form.pages[0].sections.length,
-      });
 
       //This blocks adds all duplicate fields to the registration form.
       for (
@@ -810,11 +839,6 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           while (sectionIndex < vendorPage.sections.length) {
             const section = page.sections[sectionIndex];
             const vendorSection = vendorPage?.sections[sectionIndex];
-
-            console.log({
-              section: section?.title,
-              vendorSection: vendorSection?.title,
-            });
 
             if (vendorSection && section) {
               if (vendorSection && vendorSection.title === section.title) {
@@ -872,6 +896,9 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
               ...generalRegistrationForm._doc,
               files: uploadedFiles,
             },
+            portalAdministrator,
+            allAmniStaff,
+            currentEndUsers
           });
         } else {
           throw new Error403Handler(
@@ -1147,6 +1174,9 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           ...savedNewVendor._doc,
           files: uploadedFiles,
         },
+        portalAdministrator,
+        allAmniStaff,
+        currentEndUsers
         
       });
 
