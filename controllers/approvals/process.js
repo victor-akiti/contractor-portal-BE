@@ -192,11 +192,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
                 "flags.hodRemarkForEA": hodRemarkForEA
             }
 
-            const executiveApprover = await UserModel.findOne({role: "Executive Approver"})
-
-            console.log({executiveApprover});
-            
-            
+            const executiveApprover = await UserModel.findOne({role: "Executive Approver"})   
 
             if (executiveApprover) {
                 currentEndUsers.push(String(executiveApprover._id))
