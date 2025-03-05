@@ -1,6 +1,7 @@
 const { admin } = require("../../auth/initializeFirebase");
 const { Error401Handler } = require("../../errorHandling/errorHandlers");
 const { UserModel } = require("../../models/user");
+const { UserSignInLogModel } = require("../../models/userSignInLog");
 
 const setCookies = async (req, res, next) => {
     console.log("setting cookies");
@@ -41,6 +42,21 @@ const setUserCookies = (res, authToken, next) => {
                     secure: true
                 })
 
+                if (user.role !== "Vendor") {
+                    const userSignInLogRecord = new UserSignInLogModel({
+                        name: user.name,
+                        email: user.email,
+                        role: user.role,
+                        uid: user.uid,
+                        userID: user._id,
+                    })
+    
+                    const savedUserSignInLogRecord = await userSignInLogRecord.save()
+
+                }
+
+                
+
                 console.log({ user });
 
 
@@ -68,6 +84,20 @@ const setUserCookies = (res, authToken, next) => {
                             sameSite: "none",
                             secure: true
                         })
+
+                        if (updatedUser.role !== "Vendor") {
+                            const userSignInLogRecord = new UserSignInLogModel({
+                                name: updatedUser.name,
+                                email: updatedUser.email,
+                                role: updatedUser.role,
+                                uid: updatedUser.uid,
+                                userID: updatedUser._id,
+                            })
+    
+                            const savedUserSignInLogRecord = await userSignInLogRecord.save()
+                        }
+
+                        
 
 
 
@@ -99,6 +129,22 @@ const setUserCookies = (res, authToken, next) => {
                             })
 
                             console.log({ savedNewUser });
+
+                            if (savedNewUser.role !== "Vendor") {
+                                const userSignInLogRecord = new UserSignInLogModel({
+                                    name: savedNewUser.name,
+                                    email: savedNewUser.email,
+                                    role: savedNewUser.role,
+                                    uid: savedNewUser.uid,
+                                    userID: savedNewUser._id,
+                                })
+                
+                                const savedUserSignInLogRecord = await userSignInLogRecord.save()
+
+                            }
+
+                            
+                            
 
 
 
