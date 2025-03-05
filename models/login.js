@@ -1,10 +1,7 @@
 
-const { default: mongoose } = require("mongoose");
 const { Error400Handler, Error500Handler, Error403Handler } = require("../../errorHandling/errorHandlers");
 const { createNewEvent } = require("../../helpers/eventHelpers");
-const { Company } = require("../../models/company");
 const { UserModel } = require("../../models/user");
-const { UserSignInLogModel } = require("../../models/userSignInLog");
 const { setUserCookies } = require("../user/cookies");
 
 
@@ -52,9 +49,12 @@ exports.logContractorIn = async (req, res, next) => {
         try {
             let signUserIn = await signInWithEmailAndPassword(auth, email, password)
 
+            console.log({signUserIn: signUserIn.user.uid});
             const idToken = signUserIn._tokenResponse.idToken
 
-            
+            const userRecord = await UserModel.findOne({uid: signUserIn.user.uid})
+
+            console.log({userRecord});
             
 
 
@@ -63,33 +63,6 @@ exports.logContractorIn = async (req, res, next) => {
             
             
             setUserCookies(res, idToken)
-
-
-            const userRecord = await UserModel.findOne({uid: signUserIn.user.uid})
-
-
-            if (userRecord) {
-                //Check what companies the user is an admin of 
-                const userCompanies = await Company.find({userID: userRecord.uid})
-
-                let userCompanyIDs = []
-
-                for (let i = 0; i < userCompanies.length; i++) {
-                    userCompanyIDs.push(new mongoose.Types.ObjectId(userCompanies[i]._id))
-                }
-                console.log({userCompanies});
-                
-                const userSignInLogRecord = new UserSignInLogModel({
-                    name: userRecord.name,
-                    email: userRecord.email,
-                    role: userRecord.role,
-                    uid: userRecord.uid,
-                    companies: userCompanyIDs,
-                    userID: userRecord._id,
-                })
-
-                const savedUserSignInLogRecord = await userSignInLogRecord.save()
-            }
         } catch (error) {
             console.log({error});
             
