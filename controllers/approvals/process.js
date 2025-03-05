@@ -18,6 +18,9 @@ exports.processApplicationToNextStage = async (req, res, next) => {
         const company = await Company.findOne({_id: vendorID})
         const vendor = await VendorModel.findOne({_id: company.vendor})
 
+
+        
+
         
 
         console.log({company});
@@ -54,13 +57,21 @@ exports.processApplicationToNextStage = async (req, res, next) => {
             stageApprovalMessageIndex: 20
         }]
 
-        if (!company?.flags?.level) {
+        if (company.flags.approvals.level) {
+            currentLevel = company.flags.approvals.level
+            nextLevel = currentLevel + 1
+        } else if (!company?.flags?.level) {
             currentLevel = 0
             nextLevel = 1
         } else {
             currentLevel = company?.flags?.level
             nextLevel = currentLevel + 1
         }
+
+        
+
+
+        
 
         
         const user = await UserModel.findOne({uid: req.user.uid})
@@ -77,6 +88,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
 
         if (company?.flags?.approvals) {
             approvals = {...company?.flags?.approvals}
+            approvals.level = nextLevel
         }
 
         approvals[`level${currentLevel}`] = {
@@ -482,9 +494,19 @@ exports.saveExposedPerson = async (req, res, next) => {
                     }]
                 }
             } else {
-                dueDiligenceData = {
-                    exposedPersons: [...company.dueDiligence.exposedPersons, {...exposedPerson, _id: cryptoRandomString}]
+                if (company.dueDiligence.items) {
+                    dueDiligenceData = {
+                        exposedPersons: [{
+                            ...exposedPerson,
+                            id: cryptoRandomString
+                        }]
+                    }
+                } else {
+                    dueDiligenceData = {
+                        exposedPersons: [...company.dueDiligence.exposedPersons, {...exposedPerson, _id: cryptoRandomString}]
+                    }
                 }
+                
             }
 
             console.log({dueDiligenceData});
