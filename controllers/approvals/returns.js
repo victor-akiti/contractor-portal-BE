@@ -63,22 +63,33 @@ exports.returnApplicationToVendor = async (req, res, next) => {
 
         console.log(vendor?.vendorAppAdminProfile?.email);
         console.log(vendor?.contractorDetails?.email);
+
+        let vendorAdminName, vendorAdminEmail = ""
+
+        if (vendor?.vendorAppAdminProfile?.email) {
+            vendorAdminName = vendor.vendorAppAdminProfile.name
+            vendorAdminEmail = vendor.vendorAppAdminProfile.email
+        } else if (vendor.userID) {
+            const vendorAdminAccount = await UserModel.findOne({uid: vendor.userID})
+            vendorAdminName = vendorAdminAccount.name
+            vendorAdminEmail = vendorAdminAccount.email
+        }
         
         
 
         const sendReturnEmail = await sendMail({
-            to: vendor?.vendorAppAdminProfile?.email ? vendor.vendorAppAdminProfile.email : vendor.contractorDetails.email,
+            to: vendorAdminEmail,
             // bcc: req.user.email,
             subject: `Amni Contractor Registration for ${vendor.companyName}  - Issues`,
             html: returnApplicationToVendorEmailTemplate({
-                name: vendor.vendorAppAdminProfile.name,
+                name: vendorAdminName,
                 companyName: vendor.companyName,
                 vendorID,
                 issuesHTML: remarks.issuesHtml,
 
             }).html,
             text: returnApplicationToVendorEmailTemplate({
-                name: vendor.vendorAppAdminProfile.name,
+                name: vendorAdminName,
                 companyName: vendor.companyName,
                 vendorID,
                 issuesText: remarks.issuesText
