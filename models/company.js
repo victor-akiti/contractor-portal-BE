@@ -154,6 +154,10 @@ const Schema = new mongoose.Schema({
     },
     invitedUser: {
         
+    },
+    returnedForDataUpdate: {
+        type: Boolean,
+        default: false
     }
     
 }, {timestamps: true})
