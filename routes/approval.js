@@ -1,7 +1,7 @@
 const Router = require("express").Router()
 const { recommendApplicationForHold, approveApplicationForHold, revertFromHold, cancelHoldRequest, placeDirectlyOnHold } = require("../controllers/approvals/hold")
 const { processApplicationToNextStage, processApplicationToL3, revertApplicationToL2, revertApplicationToPreviousStage, saveExposedPerson, removeExposedPerson } = require("../controllers/approvals/process")
-const { returnApplicationToVendor, returnApplicationToPreviousStage, retrieveApplication } = require("../controllers/approvals/returns")
+const { returnApplicationToVendor, returnApplicationToPreviousStage, retrieveApplication, returnExistingVendors } = require("../controllers/approvals/returns")
 const authenticate = require("../middleWare/authenticateRequests")
 const { checkIfUserHasPermissions } = require("../middleWare/roleFilters")
 const { validateVendor } = require("../middleWare/validateVendor")
@@ -25,6 +25,7 @@ Router.post("/hold/L2/revert", authenticate, checkIfUserHasPermissions(["Admin",
 //Return routes
 Router.post("/return/previous-stage/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), returnApplicationToPreviousStage)
 Router.post("/return/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM"]), returnApplicationToVendor)
+Router.post("/existing/return", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM"]), returnExistingVendors)
 
 //Retrieve routes
 Router.post("/retrieve/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), retrieveApplication)
