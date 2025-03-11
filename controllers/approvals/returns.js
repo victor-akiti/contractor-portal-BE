@@ -1,11 +1,12 @@
 const { default: mongoose } = require("mongoose");
-const { returnApplicationToVendorEmailTemplate, returnApplicationToVendorEmailApproverTemplate } = require("../../helpers/emailTemplates");
+const { returnApplicationToVendorEmailTemplate, returnApplicationToVendorEmailApproverTemplate, returnForDataUpdateTemplate } = require("../../helpers/emailTemplates");
 const { createNewEvent, eventDefinitions, approvalStages } = require("../../helpers/eventHelpers");
 const { sendMail } = require("../../helpers/mailer");
 const { sendBasicResponse } = require("../../helpers/response");
 const { Company } = require("../../models/company");
 const { VendorModel } = require("../../models/vendor");
 const { Error500Handler, Error400Handler } = require("../../errorHandling/errorHandlers");
+const { UserModel } = require("../../models/user");
 
 exports.returnApplicationToVendor = async (req, res, next) => {
     try {
@@ -289,4 +290,80 @@ const getRemarksTextAndHTML = (issues) => {
     issuesHtml += '</ul>';
 
     return { issuesHtml: issuesHtml, issuesText: issuesText };
-  }
+}
+
+exports.returnExistingVendors = async (req, res, next) => {
+    try {
+        
+        const {selectedVendors} = req.body
+        const { uid } = req.user
+        const userRecord = await UserModel.findOne({uid})
+
+        let counter = 0
+        for (let index = 0; index < selectedVendors.length; index++) {
+            const vendorID = selectedVendors[index];
+            
+
+            // Check if vendor exists
+            const company = await Company.findOne({_id: vendorID}).populate("vendorAppAdminProfile")
+
+            const companyAdmin = await UserModel.findOne({uid: company.userID})
+
+            console.log({company});
+
+            console.log({companyAdmin});
+            
+            
+
+            if (!company) {
+                continue
+            }
+
+            const newFlags = {...company.flags,
+                approvals: {
+                    level: null,
+                },
+                status: "returned",
+                stage: "returned"
+            }
+
+            //Update vendor flags stage to returned
+            const updatedApplication = await Company.findOneAndUpdate({_id: vendorID}, {
+                flags: newFlags,
+                returnedForDataUpdate: true
+            }, {
+                new: true
+            })
+
+            //Send vendor email
+            const sendVendorAppAdminEmail = await sendMail({
+                to: companyAdmin.email,
+                // bcc: req.user.email,
+                subject: `Action Required: Update Your Contractor Registration with Amni`,
+                html: returnForDataUpdateTemplate({
+                    companyName: company.companyName,
+                    adminName: companyAdmin.name
+    
+                }).html,
+                text: returnForDataUpdateTemplate({
+                    companyName: company.companyName,
+                    adminName: companyAdmin.name
+                }).text
+            })
+
+            counter = counter + 1
+            
+
+            createNewEvent(userRecord._id, userRecord.name, userRecord.role, company._id, company.companyName, "Returned to contractor for data update." , {}, "Data Update Return")
+        }
+
+        console.log(`Returned ${counter} applications`);
+        
+
+        sendBasicResponse(res, {})
+        
+        
+    } catch (error) {
+        next(error)
+    }
+}
