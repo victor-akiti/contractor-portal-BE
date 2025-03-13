@@ -23,7 +23,7 @@ exports.updatePortalAdministratorProfile = async (req, res, next) => {
             throw new Error400Handler("Vendor ID is required")
         }
 
-        const company = await Company.findOne({vendor: vendorID})
+        const company = await Company.findOne({_id: vendorID})
 
         if (!company) {
             throw new Error404Handler("Company not found")
@@ -55,6 +55,9 @@ exports.updatePortalAdministratorProfile = async (req, res, next) => {
 exports.requestNewPortalAdministrator = async (req, res, next) => {
     try {
         const {vendorID} = req.params
+
+        console.log({vendorID});
+        
 
         const {email} = req.body
 
