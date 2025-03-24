@@ -716,6 +716,60 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
       })
     }
 
+    console.log({portalAdministrator});
+
+    //Get company invite
+    let companyInvite = {}
+    if (company.contractorDetails) {
+      if (company.contractorDetails.invite) {
+        let invite = await Invite.findOne({
+          _id: company.contractorDetails.invite
+        })
+
+        if (invite && invite.inviteHistory.length > 0) {
+          const lastInvite = invite.inviteHistory[invite.inviteHistory.length - 1]
+          
+          if (lastInvite) {
+            const invitingUser = lastInvite.invitedBy?.displayName
+            const invitingUserEmail = lastInvite.invitedBy?.email
+
+            companyInvite = {
+              name: invitingUser,
+              email: invitingUserEmail
+            }
+          }
+          
+        }
+
+        console.log({invite});
+        
+      } else {
+        let invite = await Invite.findOne({
+          email: company.contractorDetails.email
+        })
+
+        if (invite) {
+          const invitingUser = invite?.user?.displayName
+          const invitingUserEmail = invite?.user?.email
+
+          companyInvite = {
+            name: invitingUser,
+            email: invitingUserEmail
+          }
+        } else {
+          companyInvite = {
+            name: "N/A",
+            email: "N/A"
+          }
+        }
+
+        
+
+        console.log({invitingUser, invitingUserEmail});
+      }
+    }
+    
+
     let allAmniStaff = await UserModel.find({ role: {$nin: "Vendor"} }).lean()
 
     let currentEndUsers = []
@@ -898,7 +952,8 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
             },
             portalAdministrator,
             allAmniStaff,
-            currentEndUsers
+            currentEndUsers,
+            companyInvite
           });
         } else {
           throw new Error403Handler(
@@ -1175,6 +1230,7 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           files: uploadedFiles,
         },
         portalAdministrator,
+        companyInvite,
         allAmniStaff,
         currentEndUsers
         
