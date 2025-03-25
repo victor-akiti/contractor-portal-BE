@@ -735,7 +735,8 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
 
             companyInvite = {
               name: invitingUser,
-              email: invitingUserEmail
+              email: invitingUserEmail,
+              invitedCompanyName: lastInvite?.companyName
             }
           }
           
@@ -748,13 +749,20 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           email: company.contractorDetails.email
         })
 
+        console.log({invite});
+        
+
+        let invitingUser = {}
+        let invitingUserEmail = {}
+
         if (invite) {
-          const invitingUser = invite?.user?.displayName
-          const invitingUserEmail = invite?.user?.email
+          invitingUser = invite?.user?.displayName
+          invitingUserEmail = invite?.user?.email
 
           companyInvite = {
             name: invitingUser,
-            email: invitingUserEmail
+            email: invitingUserEmail,
+            invitedCompanyName: invite?.companyName
           }
         } else {
           companyInvite = {
