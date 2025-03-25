@@ -15,7 +15,6 @@ exports.updateCertificate = async (req, res, next) => {
 
         console.log({newCertificate, updateCode});
         
-
         if (!newCertificate || !updateCode) {
             throw new Error400Handler("There was an error with updating your certificate. Please contact the site admin")
         }
