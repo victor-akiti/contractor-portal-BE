@@ -716,7 +716,6 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
       })
     }
 
-    console.log({portalAdministrator});
 
     //Get company invite
     let companyInvite = {}
@@ -809,6 +808,7 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
 
     if (company && vendorRegistrationForm) {
+      
       let tempRegistrationForm = { ...generalRegistrationForm._doc };
       let tempVendorRegistrationForm = { ...vendorRegistrationForm._doc };
 
@@ -827,6 +827,9 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
             const section = page.sections[index2];
             const vendorSection = vendorPage?.sections[vendorSectionIndex];
 
+
+            
+
             if (
               vendorSection &&
               !vendorSection.isDuplicate &&
@@ -844,6 +847,12 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                   tempRegistrationForm.form.pages[index].sections[index2].fields[
                     index3
                   ].defaultValue = vendorField.defaultValue;
+                }
+
+                if (vendorField.history) {
+                  tempRegistrationForm.form.pages[index].sections[index2].fields[
+                    index3
+                  ]["history"] = vendorField.history;
                 }
               }
 
@@ -875,6 +884,15 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                     index3
                   ].defaultValue = vendorField.defaultValue;
                 }
+
+                if (vendorField.history) {
+                  tempRegistrationForm.form.pages[index].sections[index2].fields[
+                    index3
+                  ]["history"] = vendorField.history;
+                }
+
+
+                
               }
 
               vendorSectionIndex++;
