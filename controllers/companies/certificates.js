@@ -77,6 +77,12 @@ exports.updateCertificate = async (req, res, next) => {
                                         url: newCertificate.url,
                                         expiryDate: newCertificate.expiryDate
                                     }]
+
+                                    if (vendorFormCopy.form.pages[index].sections[index2].fields[index3].history) {
+                                        vendorFormCopy.form.pages[index].sections[index2].fields[index3].history.push(certificateToUpdate)
+                                    } else {
+                                        vendorFormCopy.form.pages[index].sections[index2].fields[index3]["history"] = [certificateToUpdate]
+                                    }
                                 }
                             }
                             
