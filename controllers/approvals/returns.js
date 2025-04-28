@@ -321,10 +321,11 @@ exports.returnExistingVendors = async (req, res, next) => {
 
             const newFlags = {...company.flags,
                 approvals: {
-                    level: null,
+                    level: 0,
                 },
                 status: "returned",
-                stage: "returned"
+                stage: "returned",
+                level: 0
             }
 
             //Update vendor flags stage to returned
