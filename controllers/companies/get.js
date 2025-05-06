@@ -849,10 +849,10 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                   ].defaultValue = vendorField.defaultValue;
                 }
 
-                if (vendorField.history) {
+                if (vendorField?.history) {
                   tempRegistrationForm.form.pages[index].sections[index2].fields[
                     index3
-                  ]["history"] = vendorField.history;
+                  ]["history"] = vendorField?.history;
                 }
               }
 
@@ -885,10 +885,10 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                   ].defaultValue = vendorField.defaultValue;
                 }
 
-                if (vendorField.history) {
+                if (vendorField?.history) {
                   tempRegistrationForm.form.pages[index].sections[index2].fields[
                     index3
-                  ]["history"] = vendorField.history;
+                  ]["history"] = vendorField?.history;
                 }
 
 
