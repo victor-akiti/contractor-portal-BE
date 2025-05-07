@@ -3,6 +3,7 @@ const { Error404Handler, Error403Handler, Error500Handler } = require("../../err
 const { sendBasicResponse } = require("../../helpers/response");
 const { Company } = require("../../models/company");
 const { UserModel } = require("../../models/user");
+const {createNewEvent} = require("../../helpers/eventHelpers")
 
 exports.removeUser = async (req, res, next) => {
     try {
@@ -46,6 +47,8 @@ exports.removeUser = async (req, res, next) => {
         //Delete the user account
         if (userToDelete.uid) {
             admin.auth().deleteUser(userToDelete.uid).then(async result => {
+                console.log({result});
+                
                 //Delete the user data
                 const deletedUser = await UserModel.findOneAndDelete({ _id: id })
 
