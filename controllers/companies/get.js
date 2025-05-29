@@ -3,6 +3,7 @@ const { admin } = require("../../auth/initializeFirebase");
 const {
   Error400Handler,
   Error403Handler,
+  Error500Handler,
 } = require("../../errorHandling/errorHandlers");
 const { sendBasicResponse } = require("../../helpers/response");
 const { Company } = require("../../models/company");
@@ -13,6 +14,7 @@ const { VendorModel } = require("../../models/vendor");
 const { allCompanies } = require("./savedCompaniesData");
 const { UserModel } = require("../../models/user");
 const { CertificateModel } = require("../../models/certificates");
+const { fieldsMap } = require("../../pages");
 
 exports.fetchAllCompanies = async (req, res, next) => {
   try {
@@ -690,6 +692,103 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
   }
 };
 
+const updateVendorFormWithIDs = (vendorFormID) => {
+  return new Promise (async (resolve, reject) => {
+    const vendorForm = await VendorModel.findOne({_id: vendorFormID})
+
+    if (vendorForm) {
+      let pages = vendorForm.form.pages
+
+      const generalRegistrationForm = await FormModel.findOne({
+        "form.settings.isContractorApplicationForm": true,
+      }).select("-modificationHistory -formCreator -createdAt -updatedAt");
+
+      for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+        let page = pages[pageIndex];
+
+        pages[pageIndex]["id"] = fieldsMap[pageIndex].id
+
+        let currentSection = 0
+        for (let sectionIndex = 0; sectionIndex < page.sections.length; sectionIndex++) {
+          let section = page.sections[sectionIndex];
+
+          console.log({sectionTitle: section.title});
+          
+
+          let currentField = 0
+
+          pages[pageIndex].sections[sectionIndex]["id"] = fieldsMap[pageIndex].sections[currentSection].id
+
+          
+
+          for (let fieldIndex = 0; fieldIndex < section.fields.length; fieldIndex++) {
+            const field = section.fields[fieldIndex];
+
+            
+
+            if (fieldsMap[pageIndex]?.sections[currentSection]?.fields[currentField]?.id) {
+              console.log({pageIndex, sectionIndex, fieldIndex, currentSection, currentField});
+              
+              pages[pageIndex].sections[sectionIndex].fields[fieldIndex]["id"] = fieldsMap[pageIndex].sections[currentSection].fields[currentField].id
+              console.log({fieldID: fieldsMap[pageIndex].sections[currentSection].fields[currentField].id});
+
+
+
+              if (page.sections[currentSection].fields.length - 1 > fieldIndex) {
+                if (page.sections[currentSection].fields[fieldIndex].isDuplicate) {
+    
+                } else {
+                  currentField = currentField + 1
+                }
+              } else {
+                currentField = currentField + 1
+              }
+            }
+      
+          }
+
+          if (page.sections.length - 1 > sectionIndex) {
+            if (page.sections[sectionIndex + 1].isDuplicate) {
+
+            } else {
+              currentSection = currentSection + 1
+            }
+          } else {
+            currentSection = currentSection + 1
+          }
+          
+          
+        }
+        
+        
+      }
+
+        
+
+    const updatedVendorForm = await VendorModel.findOneAndUpdate({_id: vendorFormID}, {"form.pages" : pages, updated: true}, {new: true})
+
+    if (updatedVendorForm) {
+      resolve({
+        error: null,
+        form: updatedVendorForm
+      })
+    }
+      
+      
+    } else {
+      reject({
+        error: {
+          message: "No vendor form exists"
+        },
+        form : {}
+      })
+    }
+
+    
+    
+  })
+}
+
 exports.fetchVendorApprovalData = async (req, res, next) => {
   try {
     console.log("Fetching form");
@@ -803,9 +902,33 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
       "form.settings.isContractorApplicationForm": true,
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
 
-    const vendorRegistrationForm = await VendorModel.findOne({
+    let vendorRegistrationForm = await VendorModel.findOne({
       _id: company.vendor,
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
+
+
+    //Check if the company's form has been updated to add ids to fields
+    if (!vendorRegistrationForm.updated) {
+      const updatedVendorForm = await updateVendorFormWithIDs(company.vendor)
+
+      if (updatedVendorForm.error) {
+        throw new Error500Handler("A system error occured. Please contact the system administrator")
+      } else {
+        vendorRegistrationForm = updatedVendorForm.form
+      }
+
+      console.log({updatedVendorForm});
+      
+    }
+
+    
+
+
+
+
+
+
+
 
     if (company && vendorRegistrationForm) {
       
