@@ -7,7 +7,7 @@ const { checkIfUserHasPermissions } = require("../middleWare/roleFilters")
 const { validateVendor } = require("../middleWare/validateVendor")
 
 //Process routes
-Router.post("/process/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM"]), processApplicationToNextStage)
+Router.post("/process/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM", "Amni Staff", "End User"]), processApplicationToNextStage)
 Router.post("/approve", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), processApplicationToL3)
 Router.post("/revert/l2/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), validateVendor, revertApplicationToL2)
 Router.post("/revert/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), revertApplicationToPreviousStage)
@@ -15,7 +15,7 @@ Router.post("/exposed-person/save/:vendorID", authenticate, checkIfUserHasPermis
 Router.post("/exposed-person/remove/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM"]), removeExposedPerson)
 
 //Hold routes
-Router.post("/hold/recommend/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM"]), recommendApplicationForHold)
+Router.post("/hold/recommend/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin", "VRM", "Amni Staff", "End User"]), recommendApplicationForHold)
 Router.post("/hold/direct/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), placeDirectlyOnHold)
 Router.get("/hold/approve/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), approveApplicationForHold)
 Router.get("/hold/cancel/:vendorID", authenticate, checkIfUserHasPermissions(["Admin", "HOD", "IT Admin"]), cancelHoldRequest)
