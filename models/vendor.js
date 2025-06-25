@@ -31,6 +31,10 @@ const Schema = new mongoose.Schema({
     company: {
         type: mongoose.Types.ObjectId,
         ref: Company
+    },
+    updated: {
+        type: Boolean,
+        default: false
     }
 }, {timestamps: true})
 
