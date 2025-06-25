@@ -3,6 +3,7 @@ const { admin } = require("../../auth/initializeFirebase");
 const {
   Error400Handler,
   Error403Handler,
+  Error500Handler,
 } = require("../../errorHandling/errorHandlers");
 const { sendBasicResponse } = require("../../helpers/response");
 const { Company } = require("../../models/company");
@@ -13,10 +14,11 @@ const { VendorModel } = require("../../models/vendor");
 const { allCompanies } = require("./savedCompaniesData");
 const { UserModel } = require("../../models/user");
 const { CertificateModel } = require("../../models/certificates");
+const { fieldsMap } = require("../../pages");
 
 exports.fetchAllCompanies = async (req, res, next) => {
   try {
-    console.log({ body: req.body });
+
   } catch (error) {
     next(error);
   }
@@ -48,8 +50,6 @@ exports.findCompanyByString = async (req, res, next) => {
       });
     }
 
-    console.log({ resultsList });
-
     sendBasicResponse(res, { companies: resultsList });
   } catch (error) {
     next(error);
@@ -58,7 +58,7 @@ exports.findCompanyByString = async (req, res, next) => {
 
 exports.fetchCompanyCurrentRegistrationStatus = async (req, res, next) => {
   try {
-    console.log(req.body);
+
     const { email, companyName, type, inviteID } = req.body;
     //Check if email has been used in an invite
     const inviteByEmail = await Invite.findOne({ email });
@@ -74,7 +74,6 @@ exports.fetchCompanyCurrentRegistrationStatus = async (req, res, next) => {
     if (type === "resend" && inviteID) {
       const invite = await Invite({ _id: inviteID });
 
-      console.log({ invite });
     }
 
     //check if companyName has been used in an invite
@@ -106,13 +105,10 @@ exports.fetchCompanyCurrentRegistrationStatus = async (req, res, next) => {
 
 exports.fetchAllApprovalData = async (req, res, next) => {
   try {
-    console.log("getting approval data");
 
     const invites = await Invite.find({});
 
     const user = await UserModel.findOne({ uid: req.user.uid });
-
-    console.log({ requestingID: user });
 
     let sortedInvites = [];
 
@@ -174,8 +170,6 @@ exports.fetchAllApprovalData = async (req, res, next) => {
         
       }
     });
-
-    console.log({ needingAttendion });
     
 
     //Sort notNeedingAttention
@@ -188,15 +182,6 @@ exports.fetchAllApprovalData = async (req, res, next) => {
     inProgress = sortListAlphabetically(inProgress)
 
     parkedL2 = sortListAlphabetically(parkedL2)
-
-    console.log({
-      parkedL2: parkedL2.length,
-      l3: l3.length,
-      returned: returned.length,
-      invites: sortedInvites.length,
-      needingAttendion: needingAttendion.length,
-      notNeedingAttention: notNeedingAttention.length,
-    });
 
     sendBasicResponse(res, {
       invites: sortedInvites,
@@ -227,8 +212,6 @@ exports.fetchDashboardData = async (req, res, next) => {
     //Get user profile
     const user = await UserModel.findOne({ uid });
 
-    console.log({ user });
-
     //Find all current vendor records for the requesting user
     const ObjectId = require("mongoose").Types.ObjectId;
     const vendors = await VendorModel.find({
@@ -239,7 +222,6 @@ exports.fetchDashboardData = async (req, res, next) => {
     const companies = await Company.find({ userID: uid });
     const modifiedCompanies = []
 
-    console.log({ vendors, companies });
 
     if (vendors.length === 0 && companies.length > 0) {
       //Check if user has old company record
@@ -258,9 +240,6 @@ exports.fetchDashboardData = async (req, res, next) => {
           const registrationFormCopy = { ...subRegistrationForm._doc };
 
         const item = companies[index];
-
-        console.log(item.companyName);
-        
 
         //Get general form
         
@@ -425,7 +404,6 @@ exports.fetchDashboardData = async (req, res, next) => {
             vendor: new ObjectId(companies[index]._id),
           });
         }
-        console.log({ userCompaniesSearchParameters });
 
         const expiredCertificates = await CertificateModel.find({
           vendor: companies[0]._id,
@@ -466,9 +444,7 @@ exports.fetchDashboardData = async (req, res, next) => {
 
 exports.fetchRegistrationForm = async (req, res, next) => {
   try {
-    console.log("Fetching form");
     const { uid } = req.user;
-    console.log({ uid });
     //Get contractor registration form
 
     const registrationForm = await FormModel.findOne({
@@ -493,8 +469,6 @@ exports.fetchRegistrationForm = async (req, res, next) => {
         "There isn't currently a registration form. Please contact the administrator for further assistance."
       );
     }
-
-    console.log({ registrationForm });
   } catch (error) {
     next(error);
   }
@@ -502,10 +476,9 @@ exports.fetchRegistrationForm = async (req, res, next) => {
 
 exports.fetchVendorRegistrationForm = async (req, res, next) => {
   try {
-    console.log("Fetching form");
     const { uid } = req.user;
     const { id } = req.params;
-    console.log({ uid, body: req.params });
+
     //Get contractor registration form
 
     const generalRegistrationForm = await FormModel.findOne({
@@ -534,15 +507,6 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
           const section = page.sections[index2];
           const vendorSection = vendorPage?.sections[vendorSectionIndex];
 
-          if (index === 0) {
-            console.log({ index2, vendorSectionIndex });
-            console.log({ isDuplicate: vendorSection.isDuplicate });
-          }
-          console.log({
-            vendorTitle: vendorSection.title,
-            sectionTitle: section.title,
-          });
-          console.log({ condition2: vendorSection.isDuplicate });
 
           if (
             vendorSection &&
@@ -554,7 +518,7 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
               const field = section.fields[index3];
               const vendorField = vendorSection.fields[index3];
 
-              if (vendorField && vendorField.label === field.label) {
+              if (vendorField && vendorField.type === field.type) {
                 tempRegistrationForm.form.pages[index].sections[index2].fields[
                   index3
                 ].value = vendorField.value;
@@ -592,9 +556,6 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
       }
     }
 
-    console.log({
-      tempFormLength: tempVendorRegistrationForm.form.pages[0].sections.length,
-    });
 
     //This blocks adds all duplicate fields to the registration form.
     for (
@@ -611,11 +572,6 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
         while (sectionIndex < vendorPage.sections.length) {
           const section = page.sections[sectionIndex];
           const vendorSection = vendorPage?.sections[sectionIndex];
-
-          console.log({
-            section: section?.title,
-            vendorSection: vendorSection?.title,
-          });
 
           if (vendorSection && section) {
             if (vendorSection && vendorSection.title === section.title) {
@@ -684,15 +640,113 @@ exports.fetchVendorRegistrationForm = async (req, res, next) => {
       );
     }
 
-    // console.log({registrationForm});
+
   } catch (error) {
     next(error);
   }
 };
 
+const updateVendorFormWithIDs = (vendorFormID) => {
+  return new Promise (async (resolve, reject) => {
+    const vendorForm = await VendorModel.findOne({_id: vendorFormID})
+
+    if (vendorForm) {
+      let pages = vendorForm.form.pages
+
+      const generalRegistrationForm = await FormModel.findOne({
+        "form.settings.isContractorApplicationForm": true,
+      }).select("-modificationHistory -formCreator -createdAt -updatedAt");
+
+      for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+        let page = pages[pageIndex];
+
+        pages[pageIndex]["id"] = fieldsMap[pageIndex].id
+
+        let currentSection = 0
+        for (let sectionIndex = 0; sectionIndex < page.sections.length; sectionIndex++) {
+          let section = page.sections[sectionIndex];
+
+
+          
+
+          let currentField = 0
+
+          pages[pageIndex].sections[sectionIndex]["id"] = fieldsMap[pageIndex].sections[currentSection].id
+
+          
+
+          for (let fieldIndex = 0; fieldIndex < section.fields.length; fieldIndex++) {
+            const field = section.fields[fieldIndex];
+
+            
+
+            if (fieldsMap[pageIndex]?.sections[currentSection]?.fields[currentField]?.id) {
+
+              
+              pages[pageIndex].sections[sectionIndex].fields[fieldIndex]["id"] = fieldsMap[pageIndex].sections[currentSection].fields[currentField].id
+
+
+
+
+              if (page.sections[currentSection].fields.length - 1 > fieldIndex) {
+                if (page.sections[currentSection].fields[fieldIndex].isDuplicate) {
+    
+                } else {
+                  currentField = currentField + 1
+                }
+              } else {
+                currentField = currentField + 1
+              }
+            }
+      
+          }
+
+          if (page.sections.length - 1 > sectionIndex) {
+            if (page.sections[sectionIndex + 1].isDuplicate) {
+
+            } else {
+              currentSection = currentSection + 1
+            }
+          } else {
+            currentSection = currentSection + 1
+          }
+          
+          
+        }
+        
+        
+      }
+
+        
+
+    const updatedVendorForm = await VendorModel.findOneAndUpdate({_id: vendorFormID}, {"form.pages" : pages, updated: true}, {new: true})
+
+    if (updatedVendorForm) {
+      resolve({
+        error: null,
+        form: updatedVendorForm
+      })
+    }
+      
+      
+    } else {
+      reject({
+        error: {
+          message: "No vendor form exists"
+        },
+        form : {}
+      })
+    }
+
+    
+    
+  })
+}
+
 exports.fetchVendorApprovalData = async (req, res, next) => {
   try {
-    console.log("Fetching form");
+    console.log("Fetching vendor approval data");
+    
     const { uid } = req.user;
     const { id } = req.params;
     const user = await UserModel.findOne({ uid });
@@ -741,14 +795,14 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           
         }
 
-        console.log({invite});
+
         
       } else {
         let invite = await Invite.findOne({
           email: company.contractorDetails.email
         })
 
-        console.log({invite});
+
         
 
         let invitingUser = {}
@@ -772,7 +826,7 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
 
         
 
-        console.log({invitingUser, invitingUserEmail});
+
       }
     }
     
@@ -803,9 +857,25 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
       "form.settings.isContractorApplicationForm": true,
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
 
-    const vendorRegistrationForm = await VendorModel.findOne({
+    let vendorRegistrationForm = await VendorModel.findOne({
       _id: company.vendor,
     }).select("-modificationHistory -formCreator -createdAt -updatedAt");
+
+
+    //Check if the company's form has been updated to add ids to fields
+    if (!vendorRegistrationForm.updated) {
+      console.log("Updating vendor form with ids");
+      
+      const updatedVendorForm = await updateVendorFormWithIDs(company.vendor)
+
+      if (updatedVendorForm.error) {
+        throw new Error500Handler("A system error occured. Please contact the system administrator")
+      } else {
+        vendorRegistrationForm = updatedVendorForm.form
+      }
+      
+    }
+
 
     if (company && vendorRegistrationForm) {
       
@@ -840,7 +910,7 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                 const field = section.fields[index3];
                 const vendorField = vendorSection.fields[index3];
 
-                if (vendorField && vendorField.label === field.label) {
+                if (vendorField && vendorField.type === field.type) {
                   tempRegistrationForm.form.pages[index].sections[index2].fields[
                     index3
                   ].value = vendorField.value;
@@ -867,6 +937,8 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
 
               vendorSectionIndex++;
             } else if (vendorSection.isDuplicate) {
+              console.log("Duplicate section");
+              
               while (vendorPage?.sections[vendorSectionIndex].isDuplicate) {
                 vendorSectionIndex++;
               }
@@ -891,6 +963,12 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                   ]["history"] = vendorField?.history;
                 }
 
+                if (vendorField?.isCurrency) {
+                  tempRegistrationForm.form.pages[index].sections[index2].fields[
+                    index3
+                  ]["isCurrency"] = vendorField?.isCurrency;
+                }
+
 
                 
               }
@@ -902,7 +980,6 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           continue;
         }
       }
-
 
       //This blocks adds all duplicate fields to the registration form.
       for (
@@ -928,6 +1005,8 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
                   const vendorField = vendorSection.fields[fieldIndex];
 
                   if (vendorField.isDuplicate) {
+                    console.log("Duplicate field");
+                    
                     tempRegistrationForm.form.pages[index].sections[
                       sectionIndex
                     ].fields.splice(fieldIndex, 0, vendorField);
@@ -1008,8 +1087,6 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
           const registrationFormCopy = { ...subRegistrationForm._doc };
 
         const item = company;
-
-        console.log(item.companyName);
         
 
         //Get general form
@@ -1265,20 +1342,8 @@ exports.fetchVendorApprovalData = async (req, res, next) => {
       
     }
 
-
-
-
-
-
-
-    console.log({vendorRegistrationForm});
-
     return
     
-
-    
-
-    // console.log({registrationForm});
   } catch (error) {
     next(error);
   }
