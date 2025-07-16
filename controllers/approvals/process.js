@@ -57,7 +57,7 @@ exports.processApplicationToNextStage = async (req, res, next) => {
             stageApprovalMessageIndex: 20
         }]
 
-        if (company.flags.approvals.level) {
+        if (company?.flags?.approvals?.level) {
             currentLevel = company.flags.approvals.level
             nextLevel = currentLevel + 1
         } else if (!company?.flags?.level) {
