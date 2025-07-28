@@ -1,7 +1,7 @@
 
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const sender = 'no-reply@amni.com';
+const sender = 'godson.aniagudo@amni.com';
 
 const sendMail = (data) => {
     console.log({data});
