@@ -46,7 +46,7 @@ const setUserCookies = (res, authToken, next) => {
                     const userSignInLogRecord = new UserSignInLogModel({
                         name: user.name,
                         email: user.email,
-                        role: user.role,
+                        role: user.role || "Amni Staff",
                         uid: user.uid,
                         userID: user._id,
                     })
