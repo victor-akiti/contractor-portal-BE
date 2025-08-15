@@ -152,7 +152,7 @@ exports.registerNewAccount = async (req, res, next) => {
             //     }).text
             // })
     
-            // if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
+            // if (sendInviteEmail.statusCode === 202 || sendInviteEmail.statusCode === "202") {
             //     sendBasicResponse(res, {})
             // }
         }).catch(error => {
@@ -270,7 +270,7 @@ exports.registerNewPortalAdminAccount = async (req, res, next) => {
             //     }).text
             // })
     
-            // if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
+            // if (sendInviteEmail.statusCode === 202 || sendInviteEmail.statusCode === "202") {
             //     sendBasicResponse(res, {})
             // }
         }).catch(error => {

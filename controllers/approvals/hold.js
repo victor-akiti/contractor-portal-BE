@@ -158,7 +158,7 @@ exports.recommendApplicationForHold = async (req, res, next) => {
         })
 
 
-        // if (sendApproverEmail[0].statusCode === 202 || sendApproverEmail[0].statusCode === "202") {
+        // if (sendApproverEmail.statusCode === 202 || sendApproverEmail.statusCode === "202") {
         //     //Create event
         //     sendBasicResponse(res, {})
         // }

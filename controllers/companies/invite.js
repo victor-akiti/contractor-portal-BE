@@ -102,7 +102,7 @@ exports.createNewInvite = async (req, res, next) => {
             }).text
         })
 
-        if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
+        if (sendInviteEmail.statusCode === 202 || sendInviteEmail.statusCode === "202") {
             sendBasicResponse(res, {})
             createNewEvent(userRecord._id, userRecord.name, userRecord.role, null, savedNewInvite.companyName, `New invite sent to ${savedNewInvite.companyName}`, {}, "invite sent")
         }
@@ -256,7 +256,7 @@ exports.resendInvite = async (req, res, next) => {
           }).text
       })
 
-      if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
+      if (sendInviteEmail.statusCode === 202 || sendInviteEmail.statusCode === "202") {
           sendBasicResponse(res, {})
 
           const userRecord = await UserModel.findOne({uid: req.user.uid})
@@ -316,7 +316,7 @@ exports.renewInvite = async (req, res, next) => {
 
     console.log({sendInviteEmail});
 
-    if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
+    if (sendInviteEmail.statusCode === 202 || sendInviteEmail.statusCode === "202") {
         sendBasicResponse(res, {})
 
         const userRecord = await UserModel.findOne({uid: req.user.uid})
@@ -362,7 +362,7 @@ exports.sendInviteReminder = async (req, res, next) => {
       }).text
   })
 
-  if (sendInviteEmail[0].statusCode === 202 || sendInviteEmail[0].statusCode === "202") {
+  if (sendInviteEmail.statusCode === 202 || sendInviteEmail.statusCode === "202") {
       sendBasicResponse(res, {})
       const date = new Date()
       const lastReminderSent = date.getTime()

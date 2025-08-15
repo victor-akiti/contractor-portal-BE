@@ -62,8 +62,8 @@ exports.returnApplicationToVendor = async (req, res, next) => {
 
         //Get the CnP HOD and GM emails to add as bcc
 
-        console.log(vendor?.vendorAppAdminProfile?.email);
-        console.log(vendor?.contractorDetails?.email);
+        // console.log(vendor?.vendorAppAdminProfile?.email);
+        // console.log(vendor?.contractorDetails?.email);
 
         let vendorAdminName, vendorAdminEmail = ""
 
@@ -115,8 +115,10 @@ exports.returnApplicationToVendor = async (req, res, next) => {
                 issuesText: remarks.issuesText
             }).text
         })
+
+        console.log({sendReturnEmail, sendApproverEmail});
   
-        if (sendReturnEmail[0].statusCode === 202 || sendReturnEmail[0].statusCode === "202") {
+        if (sendReturnEmail.statusCode === 202 || sendReturnEmail.statusCode === "202") {
             //Create event
             sendBasicResponse(res, {})
         }

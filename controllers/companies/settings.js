@@ -126,7 +126,7 @@ exports.requestNewPortalAdministrator = async (req, res, next) => {
                 text: newPortalAdminRequestTemplate({companyName: company.companyName, hash: savedRequest.hash}).text
             })
     
-            if (sendNewPortalAdminEmail[0].statusCode === 202 || sendNewPortalAdminEmail[0].statusCode === "202") {
+            if (sendNewPortalAdminEmail.statusCode === 202 || sendNewPortalAdminEmail.statusCode === "202") {
                 //Create event
                 console.log("Email sent");
                 
