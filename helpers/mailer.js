@@ -19,6 +19,7 @@ const sendMail = (data) => {
         // Map SendGrid style object to Nodemailer style
         const mailOptions = {
             from: sender || null,
+            replyTo: 'no-reply@amni.com',
             to: data.to || null,
             cc: data.cc || null,
             bcc: data.bcc || null,

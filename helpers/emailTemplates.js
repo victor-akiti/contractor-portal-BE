@@ -11,10 +11,12 @@ const registrationInviteEmailTemplate = ({fname, link, expiry}) => {
     
         <p>If you do not wish to provide details of your company on Amni's Portal then please ignore this e-mail.</p>
     
+        <p>Please do not reply to this e-mail as it is not monitored.</p>
+
         <p>
         Sincerely,<br>
         <i>Contracts & Procurement team,</i><br>
-        Amni International Petroleum Development Company Ltd
+        Amni International Petroleum Development Company Limited
         </p>
     
     
@@ -30,9 +32,10 @@ const registrationInviteEmailTemplate = ({fname, link, expiry}) => {
     
         If you do not wish to provide details of your company on Amni's Portal then please ignore this e-mail.
     
+        Please do not reply to this e-mail as it is not monitored.
     
         Contracts & Procurement Team,
-        Amni International Petroleum Development Company Ltd
+        Amni International Petroleum Development Company Limited
         `
     }
 }
@@ -51,10 +54,12 @@ const registrationInviteReminderEmailTemplate = ({fname, link, expiry}) => {
     
         <p>If you do not wish to provide details of your company on Amni's Portal then please ignore this e-mail.</p>
     
+        <p>Please do not reply to this e-mail as it is not monitored.</p>
+
         <p>
         Sincerely,<br>
         <i>Contracts & Procurement team,</i><br>
-        Amni International Petroleum Development Company Ltd
+        Amni International Petroleum Development Company Limited
         </p>
     
     
@@ -70,9 +75,10 @@ const registrationInviteReminderEmailTemplate = ({fname, link, expiry}) => {
     
         If you do not wish to provide details of your company on Amni's Portal then please ignore this e-mail.
     
+        Please do not reply to this e-mail as it is not monitored.
     
         Contracts & Procurement Team,
-        Amni International Petroleum Development Company Ltd
+        Amni International Petroleum Development Company Limited
         `
     }
 }
@@ -171,6 +177,8 @@ const recommendForHoldEmailTemplate = ({name, companyName, vendorID, issuesHTML,
        Please log on to the Contractor Registration Portal to confirm this action.
 
 
+       Please do not reply to this e-mail as it is not monitored.
+
        Yours sincerely,
        Contracts & Procurement Team,
        Amni
@@ -204,6 +212,8 @@ const setAsSubstituteTemplate = ({staffName, substituteName}) => {
        ${staffName} is out of office and has set you as their substitute while they are away. All their tasks will be routed to you for action till they return.
 
        Please log on to the Contractor Registration Portal to see what pending tasks you have to perform.
+
+       Please do not reply to this e-mail as it is not monitored.
 
        Yours sincerely,
        Contracts & Procurement Team,
@@ -239,6 +249,8 @@ const applicationNeedingAttentionTemplate = ({action}) => {
        ${action}
        Please log in to the portal go to your Admin Dashboard to view the list of pending approvals
        ${process.env.FRONTEND_URL}
+
+       Please do not reply to this e-mail as it is not monitored.
 
        Yours sincerely,
        Contracts & Procurement Team,
@@ -331,11 +343,11 @@ const endUserNotificationTemplate = (name, companyName) => {
        If, after reviewing the information uploaded on the portal, you think that this contractor is NOT a suitable contractor for your Department, please select this option and the contractor’s registration will be complete at this point. (A Contractor’s registration can always be progressed further at a later time).
 
 
+       Please do not reply to this e-mail as it is not monitored.
+
        Yours sincerely,
        Contracts & Procurement Team,
        Amni
-       
-
 
        `
     }
@@ -356,7 +368,7 @@ const newPortalAdminRequestTemplate = ({companyName, hash}) => {
     <p>
     Sincerely,<br>
     <i>Contracts & Procurement team,</i><br>
-    Amni International Petroleum Development Company Ltd
+    Amni International Petroleum Development Company Limited
     </p>
 
 
@@ -371,9 +383,10 @@ const newPortalAdminRequestTemplate = ({companyName, hash}) => {
 
     If you do not wish to poceed, please ignore this e-mail.
 
+    Please do not reply to this e-mail as it is not monitored.
 
     Contracts & Procurement Team,
-    Amni International Petroleum Development Company Ltd
+    Amni International Petroleum Development Company Limited
     `
     }
 }
@@ -509,6 +522,8 @@ const endUserApprovedNotificationTemplate = ({name, companyName, vendorID, issue
        ${siteVisit}
        Please log on to the Contractor Registration Portal to confirm this action.
 
+
+       Please do not reply to this e-mail as it is not monitored.
 
        Yours sincerely,
        Contracts & Procurement Team,
