@@ -322,7 +322,7 @@ exports.fetchApprovalCounts = async (req, res, next) => {
   }
 };
 
-exports.fetchApprovalsByTab = async (req, res, next) => {
+exports.fetchApprovalsByTabOld = async (req, res, next) => {
   try {
     const { sort = 'name' } = req.query;
     const { tab } = req.params;
@@ -457,6 +457,247 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.fetchApprovalsByTab = async (req, res, next) => {
+  try {
+    const { sort = "name" } = req.query;
+    const { tab } = req.params;
+    const user = await UserModel.findOne({ uid: req.user.uid });
+
+    let pipeline = [];
+
+    switch (tab) {
+      case "pending-l2":
+        pipeline = [
+          {
+            $match: {
+              $or: [{ "flags.submitted": true }, { "flags.stage": "submitted" }],
+              "flags.status": {
+                $nin: [
+                  "parked",
+                  "suspended",
+                  "approved",
+                  "returned",
+                  "recommended for hold",
+                  "park requested",
+                ],
+              },
+            },
+          },
+
+          // 1) Normalize currentEndUsers safely
+          {
+            $addFields: {
+              _rawEndUserIds: {
+                $let: {
+                  vars: { cu: { $ifNull: ["$currentEndUsers", []] } },
+                  in: { $cond: [{ $isArray: "$$cu" }, "$$cu", []] },
+                },
+              },
+            },
+          },
+
+          // 2) Build a strings array: toString for ObjectIds, keep strings, drop others
+          {
+            $addFields: {
+              _endUserIdStrings: {
+                $setUnion: [
+                  {
+                    $filter: {
+                      input: {
+                        $map: {
+                          input: "$_rawEndUserIds",
+                          as: "i",
+                          in: {
+                            $switch: {
+                              branches: [
+                                { case: { $eq: [{ $type: "$$i" }, "objectId"] }, then: { $toString: "$$i" } },
+                                { case: { $eq: [{ $type: "$$i" }, "string"] }, then: "$$i" },
+                              ],
+                              default: null,
+                            },
+                          },
+                        },
+                      },
+                      as: "s",
+                      cond: { $ne: ["$$s", null] },
+                    },
+                  },
+                  [], // setUnion needs arrays
+                ],
+              },
+            },
+          },
+
+          // 3) Build an ObjectId array only from valid 24-hex strings
+          {
+            $addFields: {
+              _endUserObjectIds: {
+                $setUnion: [
+                  {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$_endUserIdStrings",
+                          as: "sid",
+                          cond: { $regexMatch: { input: "$$sid", regex: /^[0-9a-fA-F]{24}$/ } },
+                        },
+                      },
+                      as: "sid",
+                      in: { $toObjectId: "$$sid" },
+                    },
+                  },
+                  [],
+                ],
+              },
+            },
+          },
+
+          // 4) Populate using EITHER objectId match OR stringified _id match
+          {
+            $lookup: {
+              from: "users",
+              let: { idStrs: "$_endUserIdStrings", idObjs: "$_endUserObjectIds" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        {
+                          $or: [
+                            // _id ∈ objectIds (fast path if we have valid ObjectIds)
+                            {
+                              $and: [
+                                { $isArray: "$$idObjs" },
+                                { $gt: [{ $size: "$$idObjs" }, 0] },
+                                { $in: ["$_id", "$$idObjs"] },
+                              ],
+                            },
+                            // toString(_id) ∈ strings (covers string-stored ids)
+                            {
+                              $and: [
+                                { $isArray: "$$idStrs" },
+                                { $gt: [{ $size: "$$idStrs" }, 0] },
+                                { $in: [{ $toString: "$_id" }, "$$idStrs"] },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                },
+                { $project: { password: 0, __v: 0 } },
+              ],
+              as: "currentEndUsers",
+            },
+          },
+          {
+            $addFields: {
+              missingEndUserIds: {
+                $setDifference: [
+                  "$_endUserIdStrings",
+                  { $map: { input: "$currentEndUsers", as: "u", in: { $toString: "$$u._id" } } }
+                ]
+              }
+            }
+          },
+
+
+          // 5) needsAttention stays EXACTLY as before (against original array)
+          {
+            $addFields: {
+              needsAttention: {
+                $in: [
+                  user._id,
+                  {
+                    $cond: [
+                      { $isArray: "$_rawEndUserIds" },
+                      "$_rawEndUserIds",
+                      [],
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+
+          // Default sort: needsAttention first then alpha
+          { $sort: { needsAttention: -1, companyName: 1 } },
+
+          // Cleanup temps
+          { $project: { _rawEndUserIds: 0, _endUserIdStrings: 0, _endUserObjectIds: 0 } },
+        ];
+        break;
+
+      case "completed-l2":
+        pipeline = [
+          { $match: { $or: [{ "flags.status": "suspended" }, { "flags.status": "parked" }] } },
+          { $sort: { companyName: 1 } },
+        ];
+        break;
+
+      case "l3":
+        pipeline = [
+          { $match: { "flags.status": "approved", "flags.approved": true } },
+          { $sort: { companyName: 1 } },
+        ];
+        break;
+
+      case "in-progress":
+        pipeline = [
+          {
+            $match: {
+              $or: [{ "flags.status": { $exists: false } }, { "flags.status": "incomplete" }],
+            },
+          },
+          { $sort: { companyName: 1 } },
+        ];
+        break;
+
+      case "returned":
+        pipeline = [{ $match: { "flags.status": "returned" } }, { $sort: { companyName: 1 } }];
+        break;
+
+      case "park-requests":
+        pipeline = [
+          {
+            $match: {
+              $or: [
+                { "flags.status": "recommended for hold" },
+                { "flags.status": "park requested" },
+                { "flags.stage": "recommended for hold" },
+              ],
+            },
+          },
+          { $sort: { companyName: 1 } },
+        ];
+        break;
+
+      default:
+        throw new Error400Handler("Invalid tab specified");
+    }
+
+    // Optional sort switch
+    if (sort === "date") {
+      const i = pipeline.findIndex((s) => s.$sort);
+      if (i !== -1) {
+        pipeline[i].$sort = tab === "pending-l2"
+          ? { needsAttention: -1, updatedAt: -1 }
+          : { updatedAt: -1 };
+      } else {
+        pipeline.push({ $sort: tab === "pending-l2" ? { needsAttention: -1, updatedAt: -1 } : { updatedAt: -1 } });
+      }
+    }
+
+    const companies = await Company.aggregate(pipeline);
+    sendBasicResponse(res, { companies });
+  } catch (error) {
+    console.log("fetchApprovalsByTab error:", error);
+    next(error);
+  }
+};
+
 
 exports.fetchInvites = async (req, res, next) => {
   try {
