@@ -14,9 +14,7 @@ exports.updateCompanyJobCategoriesList = async (req, res, next) => {
             throw new Error400Handler("Categories cannot be empty")
         }
 
-        const vendorRecord = await Company.findOneAndUpdate({vendor: id}, {jobCategories: categories}, {new: true})
-
-        console.log({vendorRecord});
+        const vendorRecord = await Company.findOneAndUpdate({_id: id}, {jobCategories: categories}, {new: true})
         
 
         if (vendorRecord) {

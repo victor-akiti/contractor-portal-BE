@@ -523,7 +523,7 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
                       cond: { $ne: ["$$s", null] },
                     },
                   },
-                  [], // setUnion needs arrays
+                  [],
                 ],
               },
             },
@@ -562,25 +562,19 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
                 {
                   $match: {
                     $expr: {
-                      $and: [
+                      $or: [
                         {
-                          $or: [
-                            // _id ∈ objectIds (fast path if we have valid ObjectIds)
-                            {
-                              $and: [
-                                { $isArray: "$$idObjs" },
-                                { $gt: [{ $size: "$$idObjs" }, 0] },
-                                { $in: ["$_id", "$$idObjs"] },
-                              ],
-                            },
-                            // toString(_id) ∈ strings (covers string-stored ids)
-                            {
-                              $and: [
-                                { $isArray: "$$idStrs" },
-                                { $gt: [{ $size: "$$idStrs" }, 0] },
-                                { $in: [{ $toString: "$_id" }, "$$idStrs"] },
-                              ],
-                            },
+                          $and: [
+                            { $isArray: "$$idObjs" },
+                            { $gt: [{ $size: "$$idObjs" }, 0] },
+                            { $in: ["$_id", "$$idObjs"] },
+                          ],
+                        },
+                        {
+                          $and: [
+                            { $isArray: "$$idStrs" },
+                            { $gt: [{ $size: "$$idStrs" }, 0] },
+                            { $in: [{ $toString: "$_id" }, "$$idStrs"] },
                           ],
                         },
                       ],
@@ -592,29 +586,34 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
               as: "currentEndUsers",
             },
           },
+
+          // (Optional) Keep this to debug mismatches; safe to remove later
           {
             $addFields: {
               missingEndUserIds: {
                 $setDifference: [
                   "$_endUserIdStrings",
-                  { $map: { input: "$currentEndUsers", as: "u", in: { $toString: "$$u._id" } } }
-                ]
-              }
-            }
+                  { $map: { input: "$currentEndUsers", as: "u", in: { $toString: "$$u._id" } } },
+                ],
+              },
+            },
           },
 
-
-          // 5) needsAttention stays EXACTLY as before (against original array)
+          // 5) FIXED: needsAttention works for ObjectId OR string-stored IDs
           {
             $addFields: {
               needsAttention: {
-                $in: [
-                  user._id,
+                $or: [
                   {
-                    $cond: [
-                      { $isArray: "$_rawEndUserIds" },
-                      "$_rawEndUserIds",
-                      [],
+                    $in: [
+                      user._id,
+                      { $cond: [{ $isArray: "$_endUserObjectIds" }, "$_endUserObjectIds", []] },
+                    ],
+                  },
+                  {
+                    $in: [
+                      { $toString: user._id },
+                      { $cond: [{ $isArray: "$_endUserIdStrings" }, "$_endUserIdStrings", []] },
                     ],
                   },
                 ],
@@ -626,7 +625,13 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
           { $sort: { needsAttention: -1, companyName: 1 } },
 
           // Cleanup temps
-          { $project: { _rawEndUserIds: 0, _endUserIdStrings: 0, _endUserObjectIds: 0 } },
+          {
+            $project: {
+              _rawEndUserIds: 0,
+              _endUserIdStrings: 0,
+              _endUserObjectIds: 0,
+            },
+          },
         ];
         break;
 
@@ -686,7 +691,11 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
           ? { needsAttention: -1, updatedAt: -1 }
           : { updatedAt: -1 };
       } else {
-        pipeline.push({ $sort: tab === "pending-l2" ? { needsAttention: -1, updatedAt: -1 } : { updatedAt: -1 } });
+        pipeline.push({
+          $sort: tab === "pending-l2"
+            ? { needsAttention: -1, updatedAt: -1 }
+            : { updatedAt: -1 },
+        });
       }
     }
 
@@ -697,7 +706,6 @@ exports.fetchApprovalsByTab = async (req, res, next) => {
     next(error);
   }
 };
-
 
 exports.fetchInvites = async (req, res, next) => {
   try {
