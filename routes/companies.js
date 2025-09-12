@@ -38,7 +38,7 @@ Router.put("/job-categories/:id", authenticate, updateCompanyJobCategoriesList)
 //Company settings and portal admin routes
 Router.get("/settings/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin", "IT Admin"]), getAllSettings)
 Router.put("/portal-admin/update/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin", "IT Admin"]), updatePortalAdministratorProfile)
-Router.post("/portal-admin/replace/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin", "IT Admin"]), requestNewPortalAdministrator)
+Router.post("/portal-admin/replace/:vendorID", authenticate, checkIfUserHasPermissions(["Vendor", "Admin",, "HOD", "IT Admin"]), requestNewPortalAdministrator)
 
 //End user management routes
 Router.put("/vendor/end-users/:companyID", authenticate, checkIfUserHasPermissions(["IT Admin", "Admin", "HOD", "C&P Admin"]), replaceEndUser)
