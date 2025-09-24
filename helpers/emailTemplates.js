@@ -302,7 +302,7 @@ const endUserNotificationTemplate = (name, companyName) => {
        </p>
 
 
-       <p><a href="${process.env.FRONTEND_URL}/staff">PORTAL LOG-IN LINK</a></p>
+       <p><a href="${process.env.FRONTEND_URL}/login/staff">PORTAL LOG-IN LINK</a></p>
 
        Yours sincerely,<br>
        <i>Contracts & Procurement Team,</i><br>
