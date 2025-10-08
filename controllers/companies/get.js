@@ -1432,9 +1432,24 @@ const updateVendorFormWithIDs = (vendorFormID) => {
   })
 }
 
+// Add this function to check before migrating
+async function previewMigration() {
+  const oldCompanies = await Company.find({
+    vendor: { $exists: false },
+    vendorAppAdminProfile: { $exists: false },
+    userID: { $exists: true, $ne: null, $ne: "" }
+  }).select('companyName userID');
+  
+  console.log(`Found ${oldCompanies.length} companies that will be migrated:`);
+  oldCompanies.sort((a,b)=> a.companyName?.toLowerCase()?.localeCompare(b.companyName?.toLowerCase())).forEach(company => {
+    console.log(`- ${company.companyName} (userID: ${company.userID})`);
+  });
+}
+
 exports.fetchVendorApprovalData = async (req, res, next) => {
   try {
     console.log("Fetching vendor approval data");
+    await previewMigration();
     
     const { uid } = req.user;
     const { id } = req.params;
